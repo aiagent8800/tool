@@ -144,17 +144,16 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 <section class="panel" id="detail-view" hidden>
 <button class="back" id="back-columns" type="button"><span class="back-icon" aria-hidden="true">‹</span><span class="back-label">Back to Column</span></button>
 <h2 id="detail-title">Column 1</h2>
-<p class="muted">প্রতিটি কলামের Cross-section (প্রস্থ × গভীরতা) এবং Height লিখুন। Feet বা Meter—যে একক বেছে নেবেন, ইনপুট সেই এককেই হবে।</p>
+<p class="muted">Width, Length ও Height-এর মান দিন। প্রতিটি dimension-এর একক আলাদাভাবে নির্বাচন করতে পারবেন।</p>
 <div class="dimension-card">
- <div class="unit-row"><label for="dimension-unit">Input unit / একক নির্বাচন</label><select id="dimension-unit" class="unit-select"><option value="m">Meter (m)</option><option value="ft">Feet (ft)</option><option value="in">Inch (in)</option></select></div>
- <div class="field"><label for="column-quantity">Quantity of this column type / একই ধরনের কলামের সংখ্যা</label><input id="column-quantity" type="number" min="1" step="1" value="1" inputmode="numeric"><p class="muted">যেমন এই Column-এর একই মাপের ৫টি কলাম থাকলে Quantity = 5 দিন।</p></div>
+ <div class="field"><label for="column-quantity"><strong>Column Qty</strong> / একই মাপের কলামের সংখ্যা</label><input id="column-quantity" type="number" min="1" step="1" value="" inputmode="numeric" placeholder="এখানে সংখ্যা লিখুন (যেমন 5)"><p class="muted">Building Summary-তে এই সংখ্যাটি দিয়ে concrete ও steel-এর per-column হিসাব গুণ হবে।</p></div>
  <h3 class="section-title">Cross-section</h3>
  <div class="form-grid">
-  <div class="field"><label for="column-width">Width / প্রস্থ</label><input id="column-width" type="number" autocomplete="off" min="0" step="any" inputmode="decimal" placeholder="যেমন 0.30"></div>
-  <div class="field"><label for="column-depth">Depth / গভীরতা</label><input id="column-depth" type="number" autocomplete="off" min="0" step="any" inputmode="decimal" placeholder="যেমন 0.45"></div>
+  <div class="field"><label for="column-width">Width / প্রস্থ</label><select id="width-unit" class="unit-select" aria-label="Width unit"><option value="m">Meter (m)</option><option value="ft">Feet (ft)</option><option value="in">Inch (in)</option></select><input id="column-width" type="number" autocomplete="off" min="0" step="any" inputmode="decimal" placeholder="যেমন 0.30"></div>
+  <div class="field"><label for="column-depth">Length / দৈর্ঘ্য</label><select id="length-unit" class="unit-select" aria-label="Length unit"><option value="m">Meter (m)</option><option value="ft">Feet (ft)</option><option value="in">Inch (in)</option></select><input id="column-depth" type="number" autocomplete="off" min="0" step="any" inputmode="decimal" placeholder="যেমন 0.45"></div>
  </div>
  <h3 class="section-title">Column Height</h3>
- <div class="field"><label for="column-height">Height / উচ্চতা</label><input id="column-height" type="number" autocomplete="off" min="0" step="any" inputmode="decimal" placeholder="যেমন 3.0"></div>
+ <div class="field"><label for="column-height">Height / উচ্চতা</label><select id="height-unit" class="unit-select" aria-label="Height unit"><option value="m">Meter (m)</option><option value="ft">Feet (ft)</option><option value="in">Inch (in)</option></select><input id="column-height" type="number" autocomplete="off" min="0" step="any" inputmode="decimal" placeholder="যেমন 3.0"></div>
  <div class="conversion" id="dimension-conversion">Cross-section ও height-এর মান এখানে দেখানো হবে।</div>
  <div class="detail-actions"><button class="primary" id="save-dimensions" type="button">Save Dimensions</button><button class="secondary" id="clear-dimensions" type="button">Clear</button></div>
  <p class="save-note" id="dimension-status" role="status">এই কলামের dimension এখনো save করা হয়নি।</p>
@@ -254,17 +253,13 @@ document.getElementById('open-project-summary').addEventListener('click',()=>sho
 document.getElementById('back-project-summary').addEventListener('click',()=>show('columns'));
 function formatNumber(n){return Number(n.toFixed(4)).toString()}
 function updateConversion(){
- const unit=document.getElementById('dimension-unit').value;
- const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
- const factorToM=unit==='m'?1:(unit==='ft'?0.3048:0.0254);
- const fields=[['Width',w],['Depth',d],['Height',h]];
+ const fields=[['Width','column-width','width-unit'],['Length','column-depth','length-unit'],['Height','column-height','height-unit']];
  const parts=[];
- fields.forEach(([label,value])=>{
+ fields.forEach(([label,inputId,unitId])=>{
+  const value=parseFloat(document.getElementById(inputId).value),unit=document.getElementById(unitId).value;
   if(Number.isFinite(value)&&value>0){
-   const meters=value*factorToM;
-   if(unit==='in')parts.push(label+': '+formatNumber(meters)+' m / '+formatNumber(meters*3.28084)+' ft');
-   else if(unit==='m')parts.push(label+': '+formatNumber(meters*3.28084)+' ft');
-   else parts.push(label+': '+formatNumber(meters)+' m');
+   const meters=dimensionMeters(value,unit);
+   parts.push(label+': '+formatNumber(meters)+' m / '+formatNumber(meters*3.28084)+' ft');
   }
  });
  document.getElementById('dimension-conversion').textContent=parts.length?('Equivalent: '+parts.join(' • ')):'Cross-section ও height-এর মান এখানে দেখানো হবে.';
@@ -282,19 +277,24 @@ function updateConversion(){
  }
 }
 function loadDimensions(number){
- const data=columnDimensions[number];const unit=document.getElementById('dimension-unit');
- unit.value=data?.unit||'m';document.getElementById('column-width').value=data?.width??'';document.getElementById('column-depth').value=data?.depth??'';document.getElementById('column-height').value=data?.height??'';
- const quantities=JSON.parse(localStorage.getItem('civilToolColumnQuantities')||'{}');document.getElementById('column-quantity').value=quantities[number]||1;
+ const data=columnDimensions[number];
+ document.getElementById('width-unit').value=data?.widthUnit||data?.unit||'m';
+ document.getElementById('length-unit').value=data?.lengthUnit||data?.unit||'m';
+ document.getElementById('height-unit').value=data?.heightUnit||data?.unit||'m';
+ document.getElementById('column-width').value=data?.width??'';
+ document.getElementById('column-depth').value=data?.depth??'';
+ document.getElementById('column-height').value=data?.height??'';
+ const quantities=JSON.parse(localStorage.getItem('civilToolColumnQuantities')||'{}');document.getElementById('column-quantity').value=quantities[number]??'';
  document.getElementById('dimension-status').textContent=data?'Column '+number+' dimensions saved.':'Column '+number+' এর dimension এখনো save করা হয়নি।';updateConversion();
 }
-document.getElementById('column-quantity').addEventListener('change',()=>{const q=parseInt(document.getElementById('column-quantity').value,10);if(!Number.isInteger(q)||q<1){document.getElementById('column-quantity').value=1;return}const quantities=JSON.parse(localStorage.getItem('civilToolColumnQuantities')||'{}');quantities[activeColumn]=q;localStorage.setItem('civilToolColumnQuantities',JSON.stringify(quantities));});
-document.getElementById('dimension-unit').addEventListener('change',updateConversion);
+document.getElementById('column-quantity').addEventListener('change',()=>{const raw=document.getElementById('column-quantity').value.trim();const q=parseInt(raw,10);const quantities=JSON.parse(localStorage.getItem('civilToolColumnQuantities')||'{}');if(raw==='' ){delete quantities[activeColumn];localStorage.setItem('civilToolColumnQuantities',JSON.stringify(quantities));return}if(!Number.isInteger(q)||q<1){document.getElementById('column-quantity').value='';return}quantities[activeColumn]=q;localStorage.setItem('civilToolColumnQuantities',JSON.stringify(quantities));});
+['width-unit','length-unit','height-unit'].forEach(id=>document.getElementById(id).addEventListener('change',updateConversion));
 ['column-width','column-depth','column-height'].forEach(id=>document.getElementById(id).addEventListener('input',updateConversion));
 document.getElementById('save-dimensions').addEventListener('click',()=>{
- const unit=document.getElementById('dimension-unit').value;
+ const widthUnit=document.getElementById('width-unit').value,lengthUnit=document.getElementById('length-unit').value,heightUnit=document.getElementById('height-unit').value;
  const width=parseFloat(document.getElementById('column-width').value),depth=parseFloat(document.getElementById('column-depth').value),height=parseFloat(document.getElementById('column-height').value);
- if(!Number.isFinite(width)||width<=0||!Number.isFinite(depth)||depth<=0||!Number.isFinite(height)||height<=0){document.getElementById('dimension-status').textContent='দয়া করে Width, Depth এবং Height—তিনটিতেই শূন্যের বেশি মান দিন।';return}
- columnDimensions[activeColumn]={unit,width,depth,height};localStorage.setItem('civilToolColumnDimensions',JSON.stringify(columnDimensions));document.getElementById('dimension-status').textContent='✓ Column '+activeColumn+' এর dimension এই device/browser-এ save হয়েছে।';updateConversion();
+ if(!Number.isFinite(width)||width<=0||!Number.isFinite(depth)||depth<=0||!Number.isFinite(height)||height<=0){document.getElementById('dimension-status').textContent='দয়া করে Width, Length এবং Height—তিনটিতেই শূন্যের বেশি মান দিন।';return}
+ columnDimensions[activeColumn]={widthUnit,lengthUnit,heightUnit,width,depth,height};localStorage.setItem('civilToolColumnDimensions',JSON.stringify(columnDimensions));document.getElementById('dimension-status').textContent='✓ Column '+activeColumn+' এর dimension এই device/browser-এ save হয়েছে।';updateConversion();
 });
 document.getElementById('clear-dimensions').addEventListener('click',()=>{document.getElementById('column-width').value='';document.getElementById('column-depth').value='';document.getElementById('column-height').value='';delete columnDimensions[activeColumn];localStorage.setItem('civilToolColumnDimensions',JSON.stringify(columnDimensions));document.getElementById('dimension-status').textContent='Dimension clear করা হয়েছে।';updateConversion()});
 renderColumns();
@@ -302,14 +302,14 @@ renderColumns();
 
 function dimensionMeters(value,unit){return value*(unit==='m'?1:(unit==='ft'?0.3048:0.0254))}
 function calculateSteel(){
- const unit=document.getElementById('dimension-unit').value;
+ const widthUnit=document.getElementById('width-unit').value,lengthUnit=document.getElementById('length-unit').value,heightUnit=document.getElementById('height-unit').value;
  const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
  const groups=[...document.querySelectorAll('.main-bar-group')].map(row=>({count:parseInt(row.querySelector('.main-bar-count').value,10),dia:parseFloat(row.querySelector('.main-bar-dia').value)}));
  const tieDia=parseFloat(document.getElementById('tie-bar-dia').value),spacing=parseFloat(document.getElementById('tie-spacing').value),cover=parseFloat(document.getElementById('column-cover').value);
  const out=document.getElementById('steel-results');
  if(![w,d,h].every(v=>Number.isFinite(v)&&v>0)){out.innerHTML='<div class="result">আগে Column-এর Width, Depth ও Height সঠিকভাবে দিন।</div>';return}
  if(!groups.length||groups.some(g=>!Number.isInteger(g.count)||g.count<1||!Number.isFinite(g.dia))||!Number.isFinite(spacing)||spacing<=0||!Number.isFinite(cover)||cover<0){out.innerHTML='<div class="result">প্রতিটি bar group-এ অন্তত 1টি bar, diameter, tie spacing ও cover সঠিকভাবে দিন।</div>';return}
- const wm=dimensionMeters(w,unit),dm=dimensionMeters(d,unit),hm=dimensionMeters(h,unit),cm=cover/1000;
+ const wm=dimensionMeters(w,widthUnit),dm=dimensionMeters(d,lengthUnit),hm=dimensionMeters(h,heightUnit),cm=cover/1000;
  if(wm<=2*cm||dm<=2*cm){out.innerHTML='<div class="result">Cover অনুযায়ী column cross-section খুব ছোট। Dimension ও cover যাচাই করুন।</div>';return}
  const fmt=x=>x.toLocaleString('en-US',{maximumFractionDigits:2});
  const totalMainCount=groups.reduce((s,g)=>s+g.count,0);
@@ -336,11 +336,10 @@ document.getElementById('add-main-bar-group').addEventListener('click',()=>addMa
 document.getElementById('reset-steel').addEventListener('click',()=>{document.getElementById('main-bar-groups').replaceChildren();addMainBarGroup(8,'16');document.getElementById('tie-bar-dia').value='8';document.getElementById('tie-spacing').value=150;document.getElementById('column-cover').value=40;document.getElementById('steel-results').replaceChildren()});
 addMainBarGroup(8,'16');
 function columnVolumeCft(){
- const unit=document.getElementById('dimension-unit').value;
  const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
  if(![w,d,h].every(v=>Number.isFinite(v)&&v>0)) return null;
- const volume=w*d*h;
- return unit==='m'?volume*35.3146667:(unit==='ft'?volume:volume/1728);
+ const wm=dimensionMeters(w,document.getElementById('width-unit').value),dm=dimensionMeters(d,document.getElementById('length-unit').value),hm=dimensionMeters(h,document.getElementById('height-unit').value);
+ return wm*dm*hm*35.3146667;
 }
 function updateColumnVolume(){
  const v=columnVolumeCft();
@@ -375,11 +374,11 @@ function calculateConcrete(){
 function renderSteelSummaryInColumn(){const box=document.getElementById('summary-content');if(!box)return;const old=document.getElementById('summary-steel-section');if(old)old.remove();const all=JSON.parse(localStorage.getItem('civilToolCalculatedSteel')||'{}'),s=all[activeColumn];if(!s)return;const h=document.createElement('h4');h.className='section-title';h.textContent='Steel Reinforcement Summary';h.style.marginTop='18px';const d=document.createElement('div');d.id='summary-steel-section';d.className='summary-materials';d.innerHTML='<div class="summary-material"><div class="material-label">Main bars steel</div><strong>'+s.mainWeight.toFixed(2)+' kg</strong></div><div class="summary-material"><div class="material-label">Ties steel</div><strong>'+s.tieWeight.toFixed(2)+' kg</strong></div><div class="summary-material"><div class="material-label">Total steel</div><strong>'+s.total.toFixed(2)+' kg</strong></div>';box.append(h,d)}
 let lastSummaryText='';
 function renderColumnSummary(data){
- const unit=document.getElementById('dimension-unit').value;
+ const widthUnit=document.getElementById('width-unit').value,lengthUnit=document.getElementById('length-unit').value,heightUnit=document.getElementById('height-unit').value;
  const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
- const toM=v=>dimensionMeters(v,unit);
+ const toM=(v,unit)=>dimensionMeters(v,unit);
  const fmt=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
- const size=[toM(w),toM(d),toM(h)];
+ const size=[toM(w,widthUnit),toM(d,lengthUnit),toM(h,heightUnit)];
  const [wm,dm,hm]=size;
  const sizeText=fmt(wm*1000)+' × '+fmt(dm*1000)+' × '+fmt(hm*1000)+' mm';
  const summary=document.getElementById('summary-content');
