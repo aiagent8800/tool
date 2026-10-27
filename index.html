@@ -263,7 +263,7 @@ function updateConversion(){
    parts.push(label+': '+formatNumber(meters)+' m / '+formatNumber(meters*3.28084)+' ft');
   }
  });
- document.getElementById('dimension-conversion').innerHTML='<div class="table-wrap"><table class="material-table"><thead><tr><th>Dimension</th><th>Input</th><th>Equivalent (m)</th></tr></thead><tbody>'+parts.map(p=>{const a=p.split(': ');const pair=a[1].split(' = ');return '<tr><td>'+a[0]+'</td><td>'+pair[0]+'</td><td>'+pair[1]+'</td></tr>'}).join('')+'</tbody></table></div>';
+ document.getElementById('dimension-conversion').innerHTML=parts.length?'<div class="table-wrap"><table class="material-table"><thead><tr><th>Dimension</th><th>Equivalent (m)</th><th>Equivalent (ft)</th></tr></thead><tbody>'+parts.map(p=>{const a=p.split(': '),pair=a[1].split(' m / ');return '<tr><td>'+a[0]+'</td><td>'+pair[0]+'</td><td>'+pair[1].replace(' ft','')+'</td></tr>'}).join('')+'</tbody></table></div>':'';
  updateColumnVolume();
  document.getElementById('concrete-results').replaceChildren();
  const summaryContent=document.getElementById('summary-content');
