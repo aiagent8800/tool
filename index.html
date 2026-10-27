@@ -78,6 +78,21 @@ input:focus,select:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 4px 
 .unit-select{max-width:190px}
 .dimension-card{padding:clamp(14px,2.5vw,22px);border:1px solid #e1e9f4;border-radius:18px;background:linear-gradient(155deg,#fbfdff,#f6f9ff)}
 .section-title{font-size:15px;font-weight:800;letter-spacing:-.015em;margin:20px 0 4px;color:#23334b}
+.summary-card{overflow:hidden;background:linear-gradient(145deg,#fff 0%,#f5f9ff 100%);border:1px solid #cbdcf7;box-shadow:0 14px 36px #1d4ed80d}
+.summary-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.summary-kicker{font-size:10px;font-weight:850;letter-spacing:.16em;color:#2563eb}
+.summary-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#e6efff;color:#1d4ed8;font-size:24px}
+.summary-size{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}
+.summary-metric{padding:12px;border:1px solid #e1eaf8;border-radius:13px;background:#fff;min-width:0}
+.summary-metric span{display:block;font-size:11px;color:#64748b;margin-bottom:5px}
+.summary-metric strong{font-size:15px;color:#172033;overflow-wrap:anywhere}
+.summary-materials{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));gap:10px;margin-top:12px}
+.summary-material{padding:14px;border-radius:14px;background:#fff;border:1px solid #e3eaf4}
+.summary-material .material-label{font-size:12px;color:#64748b;font-weight:700}
+.summary-material strong{display:block;font-size:20px;letter-spacing:-.03em;color:#123b70;margin:6px 0 3px;overflow-wrap:anywhere}
+.summary-material small{font-size:11px;color:#64748b;line-height:1.5}
+.summary-footnote{margin-top:14px;padding:11px 12px;border-radius:11px;background:#eef5ff;color:#315887;font-size:12px;line-height:1.65}
+@media(max-width:480px){.summary-size{gap:6px}.summary-metric{padding:9px}.summary-metric strong{font-size:13px}.summary-material{padding:12px}}
 .conversion{margin-top:14px;padding:12px 13px;border-radius:12px;background:#eef5ff;border:1px solid #dbeafe;color:#315887;font-size:12px;line-height:1.7;min-height:44px}
 .save-note{padding:10px 12px;border-radius:10px;background:#f0fdf4;color:#166534;font-size:13px;line-height:1.55}
 .detail-actions{gap:10px;margin-top:16px}
@@ -174,6 +189,13 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
  <div class="detail-actions"><button class="primary" id="calculate-steel" type="button">Calculate Steel</button><button class="secondary" id="reset-steel" type="button">Reset Steel</button></div>
  <div id="steel-results" aria-live="polite"></div>
  <p class="muted" style="margin-top:12px">Weight formula: d²/162 kg/m (approx.). Main-bar length is estimated as column height only; lap, anchorage, hooks, wastage, tie shape and seismic detailing are not fully included. Final bar detailing must comply with BNBC 2020 and approved structural drawings.</p>
+</div>
+<div class="dimension-card summary-card" style="margin-top:18px" id="column-summary">
+ <div class="summary-heading"><div><div class="summary-kicker">PROJECT SNAPSHOT</div><h3 class="section-title" style="margin:5px 0 4px;font-size:20px">Column Material Summary</h3></div><span class="summary-icon">▤</span></div>
+ <p class="muted" id="summary-hint">প্রথমে dimension দিন এবং Calculate Materials চাপুন। এখানে কলামের সাইজ ও material quantity একসঙ্গে দেখা যাবে।</p>
+ <div id="summary-content"></div>
+ <button class="secondary" id="copy-summary" type="button" style="margin-top:14px">Copy Summary</button>
+ <p class="muted" id="summary-copy-status" role="status" style="margin-bottom:0"></p>
 </div>
 <div class="grid">
  <div class="tile" style="cursor:default"><div class="emoji" aria-hidden="true">🧮</div><h3>Design Calculation</h3><p>Dimension input প্রস্তুত। Code-based design calculation পরবর্তী ধাপে যোগ করা যাবে।</p></div>
@@ -315,11 +337,38 @@ function calculateConcrete(){
  const cementCft=dry*parts[0]/sum,sandCft=dry*parts[1]/sum,chipsCft=dry*parts[2]/sum,bags=cementCft/1.25;
  const brickCount=aggregate==='brick'?Math.ceil(chipsCft*9):null;
  const fmt=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
+ renderColumnSummary({volume,cementCft,sandCft,chipsCft,bags,brickCount,aggregate,grade,parts,dry});
  let html='<div class="result">Materials for this column: '+fmt(volume)+' cft wet concrete</div>';
  html+='<div class="grid"><div class="dimension-card"><strong>Cement</strong><p>'+fmt(cementCft)+' cft</p><p>'+fmt(bags)+' bags (50 kg/bag approx.)</p></div><div class="dimension-card"><strong>Sand</strong><p>'+fmt(sandCft)+' cft</p></div><div class="dimension-card"><strong>'+(aggregate==='brick'?'Brick Chips':'Stone Chips')+'</strong><p>'+fmt(chipsCft)+' cft</p>'+(aggregate==='brick'?'<p>ইটের সংখ্যা: প্রায় '+brickCount+'টি</p>':'')+'</div></div>';
  html+='<p class="muted" style="margin-top:12px">Nominal ratio: '+parts.join(':')+'. Dry material volume: '+fmt(dry)+' cft. Cement bag volume assumed 1.25 cft.</p><p class="muted">এটি preliminary estimate; moisture, bulking, wastage, aggregate grading এবং actual yield অনুযায়ী পরিমাণ বদলাতে পারে। M20-এর 1:1.5:3 এখানে nominal estimate, approved structural mix design-এর বিকল্প নয়।</p>';
  out.innerHTML=html;
 }
+let lastSummaryText='';
+function renderColumnSummary(data){
+ const unit=document.getElementById('dimension-unit').value;
+ const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
+ const toM=v=>dimensionMeters(v,unit);
+ const fmt=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
+ const size=[toM(w),toM(d),toM(h)];
+ const [wm,dm,hm]=size;
+ const sizeText=fmt(wm*1000)+' × '+fmt(dm*1000)+' × '+fmt(hm*1000)+' mm';
+ const summary=document.getElementById('summary-content');
+ const stoneLabel=data.aggregate==='brick'?'Brick chips':'Stone chips';
+ const aggregateCards=data.aggregate==='brick'
+  ? '<div class="summary-material"><div class="material-label">Brick chips</div><strong>'+fmt(data.chipsCft)+' cft</strong><small>আনুমানিক ইট: '+data.brickCount.toLocaleString('en-US')+' টি</small></div>'
+  : '<div class="summary-material"><div class="material-label">Stone chips</div><strong>'+fmt(data.chipsCft)+' cft</strong><small>Coarse aggregate quantity</small></div>';
+ const roundedBags=Math.ceil(data.bags);
+ summary.innerHTML='<div class="summary-size"><div class="summary-metric"><span>Column</span><strong>Column '+activeColumn+'</strong></div><div class="summary-metric"><span>Cross-section</span><strong>'+fmt(wm*1000)+' × '+fmt(dm*1000)+' mm</strong></div><div class="summary-metric"><span>Height</span><strong>'+fmt(hm)+' m</strong></div></div><div class="summary-metric"><span>Concrete volume</span><strong>'+fmt(data.volume)+' cft · '+fmt(data.volume/35.3146667)+' m³</strong></div><h4 class="section-title" style="margin-top:18px">Material Requirement</h4><div class="summary-materials"><div class="summary-material"><div class="material-label">Cement</div><strong>'+fmt(data.bags)+' bags</strong><small>'+fmt(data.cementCft)+' cft equivalent · purchase estimate '+roundedBags+' whole bags</small></div><div class="summary-material"><div class="material-label">Sand</div><strong>'+fmt(data.sandCft)+' cft</strong><small>Fine aggregate quantity</small></div>'+aggregateCards+'</div><div class="summary-footnote">Mix ratio: '+data.parts.join(':')+' · Dry volume factor: '+fmt(data.dry/data.volume)+'. Cement bag volume assumed 1.25 cft. এটি আনুমানিক quantity summary; wastage, moisture/bulking এবং approved mix design অনুযায়ী বাস্তব পরিমাণ বদলাতে পারে।</div>';
+ document.getElementById('summary-hint').textContent='আপনার বর্তমান dimension ও concrete material settings অনুযায়ী summary তৈরি হয়েছে।';
+ lastSummaryText='Column '+activeColumn+'\nCross-section: '+fmt(wm*1000)+' × '+fmt(dm*1000)+' mm\nHeight: '+fmt(hm)+' m\nConcrete volume: '+fmt(data.volume)+' cft ('+fmt(data.volume/35.3146667)+' m³)\nMix ratio: '+data.parts.join(':')+'\nCement: '+fmt(data.bags)+' bags; purchase estimate '+roundedBags+' whole bags\nSand: '+fmt(data.sandCft)+' cft\n'+stoneLabel+': '+fmt(data.chipsCft)+' cft'+(data.aggregate==='brick'?'\nEstimated bricks: '+data.brickCount+' pcs':'');
+ document.getElementById('summary-copy-status').textContent='';
+}
+document.getElementById('copy-summary').addEventListener('click',()=>{
+ if(!lastSummaryText){document.getElementById('summary-copy-status').textContent='আগে Calculate Materials চাপ দিয়ে summary তৈরি করুন।';return}
+ const status=document.getElementById('summary-copy-status');
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(lastSummaryText).then(()=>status.textContent='Summary copied.').catch(()=>status.textContent='Copy করা যায়নি—summary text select করে copy করুন।')}
+ else {status.textContent='এই browser-এ automatic copy support নেই।'}
+});
 document.getElementById('calculate-concrete').addEventListener('click',calculateConcrete);
 document.getElementById('reset-concrete').addEventListener('click',()=>{document.getElementById('concrete-grade').value='1,1.5,3';document.getElementById('aggregate-type').value='stone';document.getElementById('dry-factor').value='1.54';document.getElementById('concrete-results').replaceChildren()});
 
