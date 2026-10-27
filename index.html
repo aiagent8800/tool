@@ -92,6 +92,7 @@ input:focus,select:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 4px 
 .summary-material strong{display:block;font-size:20px;letter-spacing:-.03em;color:#123b70;margin:6px 0 3px;overflow-wrap:anywhere}
 .summary-material small{font-size:11px;color:#64748b;line-height:1.5}
 .summary-footnote{margin-top:14px;padding:11px 12px;border-radius:11px;background:#eef5ff;color:#315887;font-size:12px;line-height:1.65}.table-wrap{width:100%;overflow-x:auto;margin-top:10px;border:1px solid #e1e9f4;border-radius:13px;background:#fff}.material-table{width:100%;border-collapse:collapse;min-width:280px;font-size:13px}.material-table th,.material-table td{padding:12px 10px;text-align:left;border-bottom:1px solid #e8eef6;white-space:nowrap}.material-table th{background:#edf4ff;color:#23466f;font-weight:800}.material-table tr:last-child td{border-bottom:0}
+.material-table tbody tr:nth-child(even){background:#f8fbff}.material-table td:last-child,.material-table th:last-child{text-align:right}.material-table td:nth-child(2),.material-table th:nth-child(2){text-align:right}.output-section{margin-top:14px;padding:16px;border:1px solid #dce7f5;border-radius:16px;background:linear-gradient(145deg,#fff,#f8fbff)}.output-section h3,.output-section h4{margin:0 0 10px;color:#1e3a5f}.output-section h4{margin-top:18px;font-size:14px}.output-total{font-weight:850;color:#123b70;background:#edf4ff!important}
 @media(max-width:480px){.summary-size{gap:6px}.summary-metric{padding:9px}.summary-metric strong{font-size:13px}.summary-material{padding:12px}}
 .conversion{margin-top:14px;padding:12px 13px;border-radius:12px;background:#eef5ff;border:1px solid #dbeafe;color:#315887;font-size:12px;line-height:1.7;min-height:44px}
 .save-note{padding:10px 12px;border-radius:10px;background:#f0fdf4;color:#166534;font-size:13px;line-height:1.55}
@@ -311,18 +312,19 @@ function calculateSteel(){
  if(!groups.length||groups.some(g=>!Number.isInteger(g.count)||g.count<1||!Number.isFinite(g.dia))||!Number.isFinite(spacing)||spacing<=0||!Number.isFinite(cover)||cover<0){out.innerHTML='<div class="result">প্রতিটি bar group-এ অন্তত 1টি bar, diameter, tie spacing ও cover সঠিকভাবে দিন।</div>';return}
  const wm=dimensionMeters(w,widthUnit),dm=dimensionMeters(d,lengthUnit),hm=dimensionMeters(h,heightUnit),cm=cover/1000;
  if(wm<=2*cm||dm<=2*cm){out.innerHTML='<div class="result">Cover অনুযায়ী column cross-section খুব ছোট। Dimension ও cover যাচাই করুন।</div>';return}
- const fmt=x=>x.toLocaleString('en-US',{maximumFractionDigits:2});
+ const fmt=x=>x.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+ const rawQty=parseInt(document.getElementById('column-quantity').value,10),qty=Number.isInteger(rawQty)&&rawQty>0?rawQty:1;
  const totalMainCount=groups.reduce((s,g)=>s+g.count,0);
  const mainWeight=groups.reduce((s,g)=>s+(g.count*hm*g.dia*g.dia/162),0);
- const mainRows=groups.map(g=>'<p>'+g.count+' bars × '+g.dia+' mm: '+fmt(g.count*hm)+' m; weight '+fmt(g.count*hm*g.dia*g.dia/162)+' kg</p>').join('');
  const tieCount=Math.ceil(hm/(spacing/1000))+1;
  const tieLengthEach=2*((wm-2*cm)+(dm-2*cm))+24*(tieDia/1000);
  const totalTieLength=tieCount*tieLengthEach;
  const tieWeight=totalTieLength*tieDia*tieDia/162;
  const total=mainWeight+tieWeight;
+ const mainRows=groups.map(g=>'<tr><td>'+g.dia+' mm</td><td>'+fmt(g.count*hm*g.dia*g.dia/162)+' kg</td><td>'+fmt(g.count*hm*g.dia*g.dia/162*qty)+' kg</td></tr>').join('');
  const steelStore=JSON.parse(localStorage.getItem('civilToolCalculatedSteel')||'{}');steelStore[activeColumn]={mainWeight,tieWeight,total,mainBarCount:totalMainCount,tieCount,tieDia,mainGroups:groups.map(g=>({count:g.count,dia:g.dia,weight:g.count*hm*g.dia*g.dia/162}))};localStorage.setItem('civilToolCalculatedSteel',JSON.stringify(steelStore));
  renderSteelSummaryInColumn();
- out.innerHTML='<div class="result">Estimated reinforcement steel: '+fmt(total)+' kg</div><div class="grid"><div class="dimension-card"><strong>Main bars — '+totalMainCount+' bars total</strong>'+mainRows+'<p><b>Main bar weight: '+fmt(mainWeight)+' kg</b></p></div><div class="dimension-card"><strong>Ties / stirrups</strong><p>Estimated count: '+tieCount+' pcs</p><p>Approx. total length: '+fmt(totalTieLength)+' m</p><p>Weight: '+fmt(tieWeight)+' kg</p></div><div class="dimension-card"><strong>Approx. total</strong><p>'+fmt(total)+' kg ('+fmt(total/1000)+' tonne)</p></div></div><p class="muted" style="margin-top:12px">Estimate excludes laps, starter bars, anchorage into footing/beam, actual hook configuration, extra confinement ties and wastage. Tie count and length are simplified estimates; verify with the structural detailing drawings.</p>';
+ out.innerHTML='<div class="output-section"><h3>Steel Material — Column-'+activeColumn+'</h3><div class="table-wrap"><table class="material-table"><thead><tr><th>Diameter</th><th>1 Qty</th><th>'+qty+' Qty</th></tr></thead><tbody>'+mainRows+'<tr class="output-total"><td>Main Rod Total</td><td>'+fmt(mainWeight)+' kg</td><td>'+fmt(mainWeight*qty)+' kg</td></tr></tbody></table></div><h4>Stirrup</h4><div class="table-wrap"><table class="material-table"><thead><tr><th>Bar diameter</th><th>1 Qty</th><th>'+qty+' Qty</th></tr></thead><tbody><tr><td>'+tieDia+' mm</td><td>'+fmt(tieWeight)+' kg</td><td>'+fmt(tieWeight*qty)+' kg</td></tr></tbody></table></div><h4>Total Steel Weight</h4><div class="table-wrap"><table class="material-table"><thead><tr><th>Steel total</th><th>1 Qty</th><th>'+qty+' Qty</th></tr></thead><tbody><tr class="output-total"><td>Main Rod + Stirrup</td><td>'+fmt(total)+' kg</td><td>'+fmt(total*qty)+' kg</td></tr></tbody></table></div><p class="muted" style="margin-top:12px">Tie count: '+tieCount+' pcs · Approx. tie length: '+fmt(totalTieLength)+' m</p></div><p class="muted" style="margin-top:12px">Estimate excludes laps, starter bars, anchorage into footing/beam, actual hook configuration, extra confinement ties and wastage. Final bar detailing must comply with approved structural drawings.</p>';
 }
 document.getElementById('calculate-steel').addEventListener('click',calculateSteel);
 function addMainBarGroup(count=4,dia='20'){
@@ -363,11 +365,12 @@ function calculateConcrete(){
  const parts=grade.split(',').map(Number),sum=parts.reduce((a,b)=>a+b,0),dry=volume*factor;
  const cementCft=dry*parts[0]/sum,sandCft=dry*parts[1]/sum,chipsCft=dry*parts[2]/sum,bags=cementCft/1.25;
  const brickCount=aggregate==='brick'?Math.ceil(chipsCft*9):null;
- const fmt=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
+ const fmt=n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+ const rawQty=parseInt(document.getElementById('column-quantity').value,10),qty=Number.isInteger(rawQty)&&rawQty>0?rawQty:1;
  renderColumnSummary({volume,cementCft,sandCft,chipsCft,bags,brickCount,aggregate,grade,parts,dry});
  const materialStore=JSON.parse(localStorage.getItem('civilToolCalculatedMaterials')||'{}');materialStore[activeColumn]={volume,cementCft,sandCft,chipsCft,bags,brickCount,aggregate,grade,parts,dry};localStorage.setItem('civilToolCalculatedMaterials',JSON.stringify(materialStore));
- let html='<div class="result">Materials for this column: '+fmt(volume)+' cft wet concrete</div>';
- html+='<div class="grid"><div class="dimension-card"><strong>Cement</strong><p>'+fmt(cementCft)+' cft</p><p>'+fmt(bags)+' bags (50 kg/bag approx.)</p></div><div class="dimension-card"><strong>Sand</strong><p>'+fmt(sandCft)+' cft</p></div><div class="dimension-card"><strong>'+(aggregate==='brick'?'Brick Chips':'Stone Chips')+'</strong><p>'+fmt(chipsCft)+' cft</p>'+(aggregate==='brick'?'<p>ইটের সংখ্যা: প্রায় '+brickCount+'টি</p>':'')+'</div></div>';
+ const aggLabel=aggregate==='brick'?'Brick Chips':'Stone Chips';
+ let html='<div class="output-section"><h3>Concrete Material — Column-'+activeColumn+'</h3><p class="muted">Concrete Volume: '+fmt(volume)+' cft</p><div class="table-wrap"><table class="material-table"><thead><tr><th>Material</th><th>1 Qty</th><th>'+qty+' Qty</th></tr></thead><tbody><tr><td>Cement</td><td>'+fmt(bags)+' bags</td><td>'+fmt(bags*qty)+' bags</td></tr><tr><td>Sand</td><td>'+fmt(sandCft)+' cft</td><td>'+fmt(sandCft*qty)+' cft</td></tr><tr><td>'+aggLabel+'</td><td>'+fmt(chipsCft)+' cft</td><td>'+fmt(chipsCft*qty)+' cft</td></tr>'+(aggregate==='brick'?'<tr><td>Brick pieces (estimate)</td><td>'+fmt(brickCount)+' pcs</td><td>'+fmt(brickCount*qty)+' pcs</td></tr>':'')+'</tbody></table></div><p class="muted" style="margin-top:10px">Cement volume: '+fmt(cementCft)+' cft ('+fmt(bags)+' bags for 1 Qty)</p></div>';
  out.innerHTML=html;
 }
 function renderSteelSummaryInColumn(){
