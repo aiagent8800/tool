@@ -368,7 +368,6 @@ function calculateConcrete(){
  const materialStore=JSON.parse(localStorage.getItem('civilToolCalculatedMaterials')||'{}');materialStore[activeColumn]={volume,cementCft,sandCft,chipsCft,bags,brickCount,aggregate,grade,parts,dry};localStorage.setItem('civilToolCalculatedMaterials',JSON.stringify(materialStore));
  let html='<div class="result">Materials for this column: '+fmt(volume)+' cft wet concrete</div>';
  html+='<div class="grid"><div class="dimension-card"><strong>Cement</strong><p>'+fmt(cementCft)+' cft</p><p>'+fmt(bags)+' bags (50 kg/bag approx.)</p></div><div class="dimension-card"><strong>Sand</strong><p>'+fmt(sandCft)+' cft</p></div><div class="dimension-card"><strong>'+(aggregate==='brick'?'Brick Chips':'Stone Chips')+'</strong><p>'+fmt(chipsCft)+' cft</p>'+(aggregate==='brick'?'<p>ইটের সংখ্যা: প্রায় '+brickCount+'টি</p>':'')+'</div></div>';
- html+='<p class="muted" style="margin-top:12px">Nominal ratio: '+parts.join(':')+'. Dry material volume: '+fmt(dry)+' cft. Cement bag volume assumed 1.25 cft.</p><p class="muted">এটি preliminary estimate; moisture, bulking, wastage, aggregate grading এবং actual yield অনুযায়ী পরিমাণ বদলাতে পারে। M20-এর 1:1.5:3 এখানে nominal estimate, approved structural mix design-এর বিকল্প নয়।</p>';
  out.innerHTML=html;
 }
 function renderSteelSummaryInColumn(){
