@@ -162,10 +162,9 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
  <h3 class="section-title" style="margin-top:0">Steel Reinforcement</h3>
  <p class="muted">Column-এর main bars ও ties/stirrups-এর আনুমানিক steel weight হিসাব করুন। এটি quantity estimate—reinforcement design নয়।</p>
  <h3 class="section-title">Longitudinal / Main Bars</h3>
- <div class="form-grid">
-  <div class="field"><label for="main-bar-count">Main bar সংখ্যা</label><input id="main-bar-count" type="number" min="4" step="1" value="8" inputmode="numeric"></div>
-  <div class="field"><label for="main-bar-dia">Main bar diameter (mm)</label><select id="main-bar-dia"><option>10</option><option>12</option><option selected>16</option><option>20</option><option>25</option><option>32</option></select></div>
- </div>
+ <p class="muted">একাধিক diameter আলাদাভাবে যোগ করুন—যেমন 4টি × 20 mm এবং 2টি × 16 mm।</p>
+ <div id="main-bar-groups"></div>
+ <div class="detail-actions"><button class="secondary" id="add-main-bar-group" type="button">＋ Add bar size</button></div>
  <h3 class="section-title">Ties / Stirrups</h3>
  <div class="form-grid">
   <div class="field"><label for="tie-bar-dia">Tie diameter (mm)</label><select id="tie-bar-dia"><option selected>8</option><option>10</option><option>12</option></select></div>
@@ -258,24 +257,35 @@ function dimensionMeters(value,unit){return value*(unit==='m'?1:(unit==='ft'?0.3
 function calculateSteel(){
  const unit=document.getElementById('dimension-unit').value;
  const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
- const n=parseInt(document.getElementById('main-bar-count').value,10),mainDia=parseFloat(document.getElementById('main-bar-dia').value),tieDia=parseFloat(document.getElementById('tie-bar-dia').value),spacing=parseFloat(document.getElementById('tie-spacing').value),cover=parseFloat(document.getElementById('column-cover').value);
+ const groups=[...document.querySelectorAll('.main-bar-group')].map(row=>({count:parseInt(row.querySelector('.main-bar-count').value,10),dia:parseFloat(row.querySelector('.main-bar-dia').value)}));
+ const tieDia=parseFloat(document.getElementById('tie-bar-dia').value),spacing=parseFloat(document.getElementById('tie-spacing').value),cover=parseFloat(document.getElementById('column-cover').value);
  const out=document.getElementById('steel-results');
  if(![w,d,h].every(v=>Number.isFinite(v)&&v>0)){out.innerHTML='<div class="result">আগে Column-এর Width, Depth ও Height সঠিকভাবে দিন।</div>';return}
- if(!Number.isInteger(n)||n<4||!Number.isFinite(spacing)||spacing<=0||!Number.isFinite(cover)||cover<0){out.innerHTML='<div class="result">Main bars অন্তত 4টি দিন; tie spacing ও cover সঠিকভাবে দিন।</div>';return}
+ if(!groups.length||groups.some(g=>!Number.isInteger(g.count)||g.count<1||!Number.isFinite(g.dia))||!Number.isFinite(spacing)||spacing<=0||!Number.isFinite(cover)||cover<0){out.innerHTML='<div class="result">প্রতিটি bar group-এ অন্তত 1টি bar, diameter, tie spacing ও cover সঠিকভাবে দিন।</div>';return}
  const wm=dimensionMeters(w,unit),dm=dimensionMeters(d,unit),hm=dimensionMeters(h,unit),cm=cover/1000;
  if(wm<=2*cm||dm<=2*cm){out.innerHTML='<div class="result">Cover অনুযায়ী column cross-section খুব ছোট। Dimension ও cover যাচাই করুন।</div>';return}
- const mainLength=n*hm;
+ const fmt=x=>x.toLocaleString('en-US',{maximumFractionDigits:2});
+ const totalMainCount=groups.reduce((s,g)=>s+g.count,0);
+ const mainWeight=groups.reduce((s,g)=>s+(g.count*hm*g.dia*g.dia/162),0);
+ const mainRows=groups.map(g=>'<p>'+g.count+' bars × '+g.dia+' mm: '+fmt(g.count*hm)+' m; weight '+fmt(g.count*hm*g.dia*g.dia/162)+' kg</p>').join('');
  const tieCount=Math.ceil(hm/(spacing/1000))+1;
  const tieLengthEach=2*((wm-2*cm)+(dm-2*cm))+24*(tieDia/1000);
  const totalTieLength=tieCount*tieLengthEach;
- const mainWeight=mainLength*mainDia*mainDia/162;
  const tieWeight=totalTieLength*tieDia*tieDia/162;
  const total=mainWeight+tieWeight;
- const fmt=x=>x.toLocaleString('en-US',{maximumFractionDigits:2});
- out.innerHTML='<div class="result">Estimated reinforcement steel: '+fmt(total)+' kg</div><div class="grid"><div class="dimension-card"><strong>Main bars</strong><p>'+n+' bars × '+fmt(hm)+' m = '+fmt(mainLength)+' m</p><p>Weight: '+fmt(mainWeight)+' kg</p></div><div class="dimension-card"><strong>Ties / stirrups</strong><p>Estimated count: '+tieCount+' pcs</p><p>Approx. total length: '+fmt(totalTieLength)+' m</p><p>Weight: '+fmt(tieWeight)+' kg</p></div><div class="dimension-card"><strong>Approx. total</strong><p>'+fmt(total)+' kg ('+fmt(total/1000)+' tonne)</p></div></div><p class="muted" style="margin-top:12px">Estimate excludes laps, starter bars, anchorage into footing/beam, actual hook configuration, extra confinement ties and wastage. Tie count and length are simplified estimates; verify with the structural detailing drawings.</p>';
+ out.innerHTML='<div class="result">Estimated reinforcement steel: '+fmt(total)+' kg</div><div class="grid"><div class="dimension-card"><strong>Main bars — '+totalMainCount+' bars total</strong>'+mainRows+'<p><b>Main bar weight: '+fmt(mainWeight)+' kg</b></p></div><div class="dimension-card"><strong>Ties / stirrups</strong><p>Estimated count: '+tieCount+' pcs</p><p>Approx. total length: '+fmt(totalTieLength)+' m</p><p>Weight: '+fmt(tieWeight)+' kg</p></div><div class="dimension-card"><strong>Approx. total</strong><p>'+fmt(total)+' kg ('+fmt(total/1000)+' tonne)</p></div></div><p class="muted" style="margin-top:12px">Estimate excludes laps, starter bars, anchorage into footing/beam, actual hook configuration, extra confinement ties and wastage. Tie count and length are simplified estimates; verify with the structural detailing drawings.</p>';
 }
 document.getElementById('calculate-steel').addEventListener('click',calculateSteel);
-document.getElementById('reset-steel').addEventListener('click',()=>{document.getElementById('main-bar-count').value=8;document.getElementById('main-bar-dia').value='16';document.getElementById('tie-bar-dia').value='8';document.getElementById('tie-spacing').value=150;document.getElementById('column-cover').value=40;document.getElementById('steel-results').replaceChildren()});
+function addMainBarGroup(count=4,dia='20'){
+ const row=document.createElement('div');row.className='form-grid main-bar-group';row.style.cssText='padding:12px;margin:10px 0;border:1px solid var(--line);border-radius:12px;background:#fff';
+ row.innerHTML='<div class="field"><label>Bar quantity / সংখ্যা</label><input class="main-bar-count" type="number" min="1" step="1" value="'+count+'" inputmode="numeric"></div><div class="field"><label>Diameter (mm)</label><select class="main-bar-dia"><option>10</option><option>12</option><option>16</option><option>20</option><option>25</option><option>32</option></select><button class="secondary remove-bar-group" type="button" style="margin-top:8px;width:100%">Remove size</button></div>';
+ row.querySelector('.main-bar-dia').value=dia;
+ row.querySelector('.remove-bar-group').addEventListener('click',()=>{if(document.querySelectorAll('.main-bar-group').length>1)row.remove();else document.getElementById('steel-results').innerHTML='<div class="result">অন্তত একটি main bar group রাখতে হবে।</div>'});
+ document.getElementById('main-bar-groups').append(row);
+}
+document.getElementById('add-main-bar-group').addEventListener('click',()=>addMainBarGroup(2,'16'));
+document.getElementById('reset-steel').addEventListener('click',()=>{document.getElementById('main-bar-groups').replaceChildren();addMainBarGroup(8,'16');document.getElementById('tie-bar-dia').value='8';document.getElementById('tie-spacing').value=150;document.getElementById('column-cover').value=40;document.getElementById('steel-results').replaceChildren()});
+addMainBarGroup(8,'16');
 function columnVolumeCft(){
  const unit=document.getElementById('dimension-unit').value;
  const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
