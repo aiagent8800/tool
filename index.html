@@ -91,7 +91,7 @@ input:focus,select:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 4px 
 .summary-material .material-label{font-size:12px;color:#64748b;font-weight:700}
 .summary-material strong{display:block;font-size:20px;letter-spacing:-.03em;color:#123b70;margin:6px 0 3px;overflow-wrap:anywhere}
 .summary-material small{font-size:11px;color:#64748b;line-height:1.5}
-.summary-footnote{margin-top:14px;padding:11px 12px;border-radius:11px;background:#eef5ff;color:#315887;font-size:12px;line-height:1.65}
+.summary-footnote{margin-top:14px;padding:11px 12px;border-radius:11px;background:#eef5ff;color:#315887;font-size:12px;line-height:1.65}.table-wrap{width:100%;overflow-x:auto;margin-top:10px;border:1px solid #e1e9f4;border-radius:13px;background:#fff}.material-table{width:100%;border-collapse:collapse;min-width:280px;font-size:13px}.material-table th,.material-table td{padding:12px 10px;text-align:left;border-bottom:1px solid #e8eef6;white-space:nowrap}.material-table th{background:#edf4ff;color:#23466f;font-weight:800}.material-table tr:last-child td{border-bottom:0}
 @media(max-width:480px){.summary-size{gap:6px}.summary-metric{padding:9px}.summary-metric strong{font-size:13px}.summary-material{padding:12px}}
 .conversion{margin-top:14px;padding:12px 13px;border-radius:12px;background:#eef5ff;border:1px solid #dbeafe;color:#315887;font-size:12px;line-height:1.7;min-height:44px}
 .save-note{padding:10px 12px;border-radius:10px;background:#f0fdf4;color:#166534;font-size:13px;line-height:1.55}
@@ -374,23 +374,19 @@ function calculateConcrete(){
 function renderSteelSummaryInColumn(){const box=document.getElementById('summary-content');if(!box)return;const old=document.getElementById('summary-steel-section');if(old)old.remove();const all=JSON.parse(localStorage.getItem('civilToolCalculatedSteel')||'{}'),s=all[activeColumn];if(!s)return;const h=document.createElement('h4');h.className='section-title';h.textContent='Steel Reinforcement Summary';h.style.marginTop='18px';const d=document.createElement('div');d.id='summary-steel-section';d.className='summary-materials';d.innerHTML='<div class="summary-material"><div class="material-label">Main bars steel</div><strong>'+s.mainWeight.toFixed(2)+' kg</strong></div><div class="summary-material"><div class="material-label">Ties steel</div><strong>'+s.tieWeight.toFixed(2)+' kg</strong></div><div class="summary-material"><div class="material-label">Total steel</div><strong>'+s.total.toFixed(2)+' kg</strong></div>';box.append(h,d)}
 let lastSummaryText='';
 function renderColumnSummary(data){
- const widthUnit=document.getElementById('width-unit').value,lengthUnit=document.getElementById('length-unit').value,heightUnit=document.getElementById('height-unit').value;
+ const wu=document.getElementById('width-unit').value,lu=document.getElementById('length-unit').value,hu=document.getElementById('height-unit').value;
  const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
- const toM=(v,unit)=>dimensionMeters(v,unit);
- const fmt=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
- const size=[toM(w,widthUnit),toM(d,lengthUnit),toM(h,heightUnit)];
- const [wm,dm,hm]=size;
- const sizeText=fmt(wm*1000)+' × '+fmt(dm*1000)+' × '+fmt(hm*1000)+' mm';
+ const fmt=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2});
+ const wm=dimensionMeters(w,wu),dm=dimensionMeters(d,lu),hm=dimensionMeters(h,hu);
+ const raw=parseInt(document.getElementById('column-quantity').value,10),qty=Number.isInteger(raw)&&raw>0?raw:1;
  const summary=document.getElementById('summary-content');
- const stoneLabel=data.aggregate==='brick'?'Brick chips':'Stone chips';
- const aggregateCards=data.aggregate==='brick'
-  ? '<div class="summary-material"><div class="material-label">Brick chips</div><strong>'+fmt(data.chipsCft)+' cft</strong><small>আনুমানিক ইট: '+data.brickCount.toLocaleString('en-US')+' টি</small></div>'
-  : '<div class="summary-material"><div class="material-label">Stone chips</div><strong>'+fmt(data.chipsCft)+' cft</strong><small>Coarse aggregate quantity</small></div>';
- const roundedBags=Math.ceil(data.bags);
- summary.innerHTML='<div class="summary-size"><div class="summary-metric"><span>Column</span><strong>Column '+activeColumn+'</strong></div><div class="summary-metric"><span>Cross-section</span><strong>'+fmt(wm*1000)+' × '+fmt(dm*1000)+' mm</strong></div><div class="summary-metric"><span>Height</span><strong>'+fmt(hm)+' m</strong></div></div><div class="summary-metric"><span>Concrete volume</span><strong>'+fmt(data.volume)+' cft · '+fmt(data.volume/35.3146667)+' m³</strong></div><h4 class="section-title" style="margin-top:18px">Material Requirement</h4><div class="summary-materials"><div class="summary-material"><div class="material-label">Cement</div><strong>'+fmt(data.bags)+' bags</strong><small>'+fmt(data.cementCft)+' cft equivalent · purchase estimate '+roundedBags+' whole bags</small></div><div class="summary-material"><div class="material-label">Sand</div><strong>'+fmt(data.sandCft)+' cft</strong><small>Fine aggregate quantity</small></div>'+aggregateCards+'</div><div class="summary-footnote">Mix ratio: '+data.parts.join(':')+' · Dry volume factor: '+fmt(data.dry/data.volume)+'. Cement bag volume assumed 1.25 cft. এটি আনুমানিক quantity summary; wastage, moisture/bulking এবং approved mix design অনুযায়ী বাস্তব পরিমাণ বদলাতে পারে।</div>';
- document.getElementById('summary-hint').textContent='আপনার বর্তমান dimension ও concrete material settings অনুযায়ী summary তৈরি হয়েছে।';
+ const agg=data.aggregate==='brick'?'Brick chips':'Stone chips';
+ const brick=data.brickCount||Math.ceil(data.chipsCft*9);
+ const rows='<tr><td>Cement</td><td>'+fmt(data.bags)+' bag</td><td>'+fmt(data.bags*qty)+' bag</td></tr><tr><td>Sand</td><td>'+fmt(data.sandCft)+' cft</td><td>'+fmt(data.sandCft*qty)+' cft</td></tr><tr><td>'+agg+'</td><td>'+fmt(data.chipsCft)+' cft</td><td>'+fmt(data.chipsCft*qty)+' cft</td></tr>'+(data.aggregate==='brick'?'<tr><td>Brick pieces (estimate)</td><td>'+fmt(brick)+' pcs</td><td>'+fmt(brick*qty)+' pcs</td></tr>':'');
+ summary.innerHTML='<div class="dimension-card summary-card"><div class="summary-kicker">COLUMN MATERIAL SUMMARY</div><h3 class="section-title">Column-'+activeColumn+'</h3><div class="summary-size"><div class="summary-metric"><span>Qty</span><strong>'+qty+'</strong></div><div class="summary-metric"><span>Size (Length × Width × Height)</span><strong>'+fmt(dm)+' × '+fmt(wm)+' × '+fmt(hm)+' m</strong></div><div class="summary-metric"><span>Volume</span><strong>'+fmt(data.volume)+' cft</strong><small>'+fmt(data.volume/35.3146667)+' m³</small></div></div><h4 class="section-title">Concrete Material</h4><div class="table-wrap"><table class="material-table"><thead><tr><th>Material</th><th>1 Qty</th><th>'+qty+' Qty</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="summary-footnote">Mix ratio: '+data.parts.join(':')+'. Cement bag volume assumed 1.25 cft. এটি আনুমানিক হিসাব; approved mix design ও site condition অনুযায়ী যাচাই করুন।</div></div>';
+ document.getElementById('summary-hint').textContent='প্রতি কলাম ও মোট Quantity-এর হিসাব দেখানো হয়েছে।';
  renderSteelSummaryInColumn();
- lastSummaryText='Column '+activeColumn+'\nCross-section: '+fmt(wm*1000)+' × '+fmt(dm*1000)+' mm\nHeight: '+fmt(hm)+' m\nConcrete volume: '+fmt(data.volume)+' cft ('+fmt(data.volume/35.3146667)+' m³)\nMix ratio: '+data.parts.join(':')+'\nCement: '+fmt(data.bags)+' bags; purchase estimate '+roundedBags+' whole bags\nSand: '+fmt(data.sandCft)+' cft\n'+stoneLabel+': '+fmt(data.chipsCft)+' cft'+(data.aggregate==='brick'?'\nEstimated bricks: '+data.brickCount+' pcs':'');
+ lastSummaryText='Column-'+activeColumn+'\nQty: '+qty+'\nSize L × W × H: '+fmt(dm)+' × '+fmt(wm)+' × '+fmt(hm)+' m\nVolume: '+fmt(data.volume)+' cft / '+fmt(data.volume/35.3146667)+' m3\nCement: '+fmt(data.bags)+' × '+qty+' = '+fmt(data.bags*qty)+' bags\nSand: '+fmt(data.sandCft)+' × '+qty+' = '+fmt(data.sandCft*qty)+' cft\n'+agg+': '+fmt(data.chipsCft)+' × '+qty+' = '+fmt(data.chipsCft*qty)+' cft';
  document.getElementById('summary-copy-status').textContent='';
 }
 let buildingSummaryText='';
