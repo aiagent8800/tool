@@ -137,8 +137,8 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 <button class="back" id="back-home" type="button"><span class="back-icon" aria-hidden="true">‹</span><span class="back-label">Back to Structural Members</span></button>
 <h2>Column</h2><p class="muted">Select a column or add another entry.</p>
 <div class="column-list" id="column-list"></div>
-<div class="actions"><button class="primary" id="add-column" type="button">＋ Add Column</button></div>
-<p class="muted">Each column entry is currently a workspace placeholder. Design inputs and calculations can be added next.</p>
+<div class="actions"><button class="primary" id="add-column" type="button">＋ Add Column</button><button class="primary" id="calculate-building-total" type="button">📊 Calculate Total Summary</button></div>
+<div class="dimension-card" id="project-summary-inline" hidden style="margin-top:16px"><h3 class="section-title" style="margin-top:0">Building Total Summary</h3><div id="project-summary-inline-content"></div><button class="secondary" id="copy-inline-project-summary" type="button">Copy Total Summary</button><p class="muted" id="inline-summary-status" role="status"></p></div>
 </section>
 <section class="panel" id="project-summary-view" hidden><button class="secondary" id="back-project-summary" type="button">‹ Back to Column Workspace</button><h2>Building Material Summary</h2><p class="muted">পুরো building-এর সব column-এর concrete ও steel quantity এখানে দেখাবে।</p><div id="project-summary-content"></div><button class="secondary" id="copy-project-summary" type="button">Copy Building Summary</button><p class="muted" id="project-summary-status"></p></section>
 <section class="panel" id="detail-view" hidden>
@@ -419,6 +419,19 @@ function renderProjectSummary(){
  box.innerHTML='<div class="summary-materials"><div class="summary-material"><div class="material-label">Column types with results</div><strong>'+ids.length+'</strong></div><div class="summary-material"><div class="material-label">Physical column count</div><strong>'+physicalCount+'</strong></div><div class="summary-material"><div class="material-label">Total concrete</div><strong>'+fmt(vol)+' cft</strong><small>'+fmt(vol/35.3146667)+' m³</small></div><div class="summary-material"><div class="material-label">Cement</div><strong>'+fmt(bags)+' bags</strong><small>Purchase estimate '+Math.ceil(bags)+' whole bags</small></div><div class="summary-material"><div class="material-label">Sand</div><strong>'+fmt(sand)+' cft</strong></div><div class="summary-material"><div class="material-label">Aggregate</div><strong>'+fmt(agg)+' cft</strong><small>Stone/brick chips combined</small></div><div class="summary-material"><div class="material-label">Total steel</div><strong>'+fmt(steel)+' kg</strong><small>Main '+fmt(main)+' kg + ties '+fmt(ties)+' kg</small></div></div><h3 class="section-title" style="margin-top:22px">Column-type quantity details</h3>'+rows+'<p class="summary-footnote">প্রতিটি Column-এর Quantity অনুযায়ী per-column হিসাব গুণ করে total করা হয়েছে। এটি preliminary estimate; approved mix design ও structural drawings দিয়ে যাচাই করুন।</p>';
  buildingSummaryText='BUILDING SUMMARY\nPhysical columns: '+physicalCount+'\nConcrete: '+fmt(vol)+' cft ('+fmt(vol/35.3146667)+' m3)\nCement: '+fmt(bags)+' bags\nSand: '+fmt(sand)+' cft\nAggregate: '+fmt(agg)+' cft\nSteel: '+fmt(steel)+' kg (main '+fmt(main)+' kg, ties '+fmt(ties)+' kg)';
 }
+document.getElementById('calculate-building-total').addEventListener('click',()=>{
+ renderProjectSummary();
+ const inline=document.getElementById('project-summary-inline');
+ document.getElementById('project-summary-inline-content').innerHTML=document.getElementById('project-summary-content').innerHTML;
+ inline.hidden=false;
+ inline.scrollIntoView({behavior:'smooth',block:'start'});
+});
+document.getElementById('copy-inline-project-summary').addEventListener('click',()=>{
+ const status=document.getElementById('inline-summary-status');
+ if(!buildingSummaryText){status.textContent='আগে প্রতিটি Column-এর Concrete Materials ও Steel হিসাব করুন।';return}
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(buildingSummaryText).then(()=>status.textContent='Total summary copied.').catch(()=>status.textContent='Copy করা যায়নি।');
+ else status.textContent='এই browser-এ automatic copy support নেই।';
+});
 document.getElementById('copy-project-summary').addEventListener('click',()=>{
  const status=document.getElementById('project-summary-status');
  if(!buildingSummaryText){status.textContent='আগে Column-এর material হিসাব করুন।';return}
