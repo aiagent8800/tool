@@ -115,26 +115,9 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 <button class="tile" type="button" disabled style="opacity:.65;cursor:default"><div class="emoji" aria-hidden="true">▰</div><h3>Beam</h3><p>Beam tools — planned.</p></button>
 <button class="tile" type="button" disabled style="opacity:.65;cursor:default"><div class="emoji" aria-hidden="true">▦</div><h3>Slab</h3><p>Slab tools — planned.</p></button>
 <button class="tile" type="button" disabled style="opacity:.65;cursor:default"><div class="emoji" aria-hidden="true">◩</div><h3>Footing</h3><p>Footing tools — planned.</p></button>
-<button class="tile" id="open-concrete" type="button"><div class="emoji" aria-hidden="true">🧱</div><h3>Concrete Calculator</h3><p>সিমেন্ট, বালু, Stone Chips / Brick Chips-এর পরিমাণ হিসাব করুন।</p></button>
 </div>
 </section>
 
-<section class="panel" id="concrete-view" hidden>
- <h2>Concrete Material Calculator</h2>
- <p class="muted">Concrete volume, nominal mix ratio এবং aggregate type নির্বাচন করে আনুমানিক উপকরণ হিসাব করুন। Structural work-এর final mix approved mix design অনুযায়ী হতে হবে।</p>
- <div class="dimension-card">
-  <div class="form-grid">
-   <div class="field"><label for="concrete-volume">Concrete volume (cft)</label><input id="concrete-volume" type="number" min="0" step="any" inputmode="decimal" value="100" placeholder="যেমন 100"></div>
-   <div class="field"><label for="concrete-grade">Grade / nominal mix</label><select id="concrete-grade"><option value="1,3,6">M10 — 1:3:6 (nominal)</option><option value="1,2,4">M15 — 1:2:4 (nominal)</option><option value="1,1.5,3" selected>M20 — 1:1.5:3 (nominal)</option><option value="design">M25 বা বেশি — approved design mix</option></select></div>
-   <div class="field"><label for="aggregate-type">Coarse aggregate</label><select id="aggregate-type"><option value="stone">Stone Chips</option><option value="brick">Brick Chips</option></select></div>
-   <div class="field"><label for="dry-factor">Dry volume factor</label><input id="dry-factor" type="number" min="1" max="2" step="0.01" value="1.54"></div>
-  </div>
-  <p class="muted">Default dry-volume factor = 1.54। প্রকল্পের specification অনুযায়ী পরিবর্তন করা যায়।</p>
-  <div class="detail-actions"><button class="primary" id="calculate-concrete" type="button">Calculate Materials</button><button class="secondary" id="reset-concrete" type="button">Reset</button></div>
-  <div id="concrete-results" aria-live="polite"></div>
- </div>
- <p class="muted" style="margin-top:16px">Brick-chip estimate: 1 cft = 9টি ইট (তোমার দেওয়া conversion)। এটি আনুমানিক; ইটের মাপ, ভাঙার অপচয় ও grading অনুযায়ী প্রকৃত সংখ্যা বদলাবে। সিমেন্টের ১ ব্যাগ = 1.25 cft ধরে হিসাব করা হয়েছে।</p>
-</section>
 <section class="panel" id="columns-view" hidden>
 <button class="back" id="back-home" type="button"><span class="back-icon" aria-hidden="true">‹</span><span class="back-label">Back to Structural Members</span></button>
 <h2>Column</h2><p class="muted">Select a column or add another entry.</p>
@@ -159,6 +142,21 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
  <div class="detail-actions"><button class="primary" id="save-dimensions" type="button">Save Dimensions</button><button class="secondary" id="clear-dimensions" type="button">Clear</button></div>
  <p class="save-note" id="dimension-status" role="status">এই কলামের dimension এখনো save করা হয়নি।</p>
 </div>
+<div class="dimension-card" style="margin-top:16px">
+ <h3 class="section-title" style="margin-top:0">Concrete Volume</h3>
+ <p class="muted">Width × Depth × Height থেকে কলামের concrete volume স্বয়ংক্রিয়ভাবে হিসাব হবে।</p>
+ <div class="result" id="column-volume-result" aria-live="polite">Column volume: dimension দিন</div>
+ <h3 class="section-title">Concrete Material</h3>
+ <p class="muted">এই কলামের volume অনুযায়ী cement, sand ও aggregate-এর আনুমানিক পরিমাণ হিসাব করুন।</p>
+ <div class="form-grid">
+  <div class="field"><label for="concrete-grade">Grade / nominal mix</label><select id="concrete-grade"><option value="1,3,6">M10 — 1:3:6 (nominal)</option><option value="1,2,4">M15 — 1:2:4 (nominal)</option><option value="1,1.5,3" selected>M20 — 1:1.5:3 (nominal)</option><option value="design">M25 বা বেশি — approved design mix</option></select></div>
+  <div class="field"><label for="aggregate-type">Coarse aggregate</label><select id="aggregate-type"><option value="stone">Stone Chips</option><option value="brick">Brick Chips</option></select></div>
+  <div class="field"><label for="dry-factor">Dry volume factor</label><input id="dry-factor" type="number" min="1" max="2" step="0.01" value="1.54"></div>
+ </div>
+ <div class="detail-actions"><button class="primary" id="calculate-concrete" type="button">Calculate Materials</button><button class="secondary" id="reset-concrete" type="button">Reset Mix</button></div>
+ <div id="concrete-results" aria-live="polite"></div>
+ <p class="muted" style="margin-top:12px">Brick chips estimate: 1 cft = 9টি ইট (আপনার দেওয়া conversion)। Cement bag volume 1.25 cft ধরা হয়েছে। এটি preliminary estimate; structural work-এর জন্য approved mix design ও project specification অনুসরণ করুন।</p>
+</div>
 <div class="grid">
  <div class="tile" style="cursor:default"><div class="emoji" aria-hidden="true">🧮</div><h3>Design Calculation</h3><p>Dimension input প্রস্তুত। Code-based design calculation পরবর্তী ধাপে যোগ করা যাবে।</p></div>
 </div>
@@ -170,7 +168,6 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 const homeView=document.getElementById('home-view');
 const columnsView=document.getElementById('columns-view');
 const detailView=document.getElementById('detail-view');
-const concreteView=document.getElementById('concrete-view');
 const pageTitle=document.getElementById('page-title');
 const pageIntro=document.getElementById('page-intro');
 const list=document.getElementById('column-list');
@@ -181,11 +178,10 @@ const columnDimensions=JSON.parse(localStorage.getItem('civilToolColumnDimension
 let activeColumn=1;
 function show(view){
  currentView=view;bottomBack.classList.toggle('visible',view!=='home');
- homeView.hidden=view!=='home';columnsView.hidden=view!=='columns';detailView.hidden=view!=='detail';concreteView.hidden=view!=='concrete';
+ homeView.hidden=view!=='home';columnsView.hidden=view!=='columns';detailView.hidden=view!=='detail';
  if(view==='home'){pageTitle.textContent='Civil Engineering Tools';pageIntro.textContent='Choose a structural member to open its tools.'}
  if(view==='columns'){pageTitle.textContent='Column Workspace';pageIntro.textContent='Manage your column entries.'}
  if(view==='detail'){pageTitle.textContent=document.getElementById('detail-title').textContent;pageIntro.textContent='Column workspace';loadDimensions(activeColumn)}
- if(view==='concrete'){pageTitle.textContent='Concrete Material Calculator';pageIntro.textContent='Calculate cement, sand and coarse aggregate quantities.'}
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function renderColumns(){
@@ -199,10 +195,9 @@ function renderColumns(){
  });
 }
 document.getElementById('open-columns').addEventListener('click',()=>{renderColumns();show('columns')});
-document.getElementById('open-concrete').addEventListener('click',()=>show('concrete'));
 document.getElementById('back-home').addEventListener('click',()=>show('home'));
 document.getElementById('back-columns').addEventListener('click',()=>{renderColumns();show('columns')});
-bottomBack.addEventListener('click',()=>{if(currentView==='detail'){renderColumns();show('columns')}else if(currentView==='columns'||currentView==='concrete'){show('home')}});
+bottomBack.addEventListener('click',()=>{if(currentView==='detail'){renderColumns();show('columns')}else if(currentView==='columns'){show('home')}});
 document.getElementById('add-column').addEventListener('click',()=>{columns.push(columns.length?Math.max(...columns)+1:1);localStorage.setItem('civilToolColumns',JSON.stringify(columns));renderColumns()});
 function formatNumber(n){return Number(n.toFixed(4)).toString()}
 function updateConversion(){
@@ -219,7 +214,9 @@ function updateConversion(){
    else parts.push(label+': '+formatNumber(meters)+' m');
   }
  });
- document.getElementById('dimension-conversion').textContent=parts.length?('Equivalent: '+parts.join(' • ')):'Cross-section ও height-এর মান এখানে দেখানো হবে।';
+ document.getElementById('dimension-conversion').textContent=parts.length?('Equivalent: '+parts.join(' • ')):'Cross-section ও height-এর মান এখানে দেখানো হবে.';
+ updateColumnVolume();
+ document.getElementById('concrete-results').replaceChildren();
 }
 function loadDimensions(number){
  const data=columnDimensions[number];const unit=document.getElementById('dimension-unit');
@@ -237,42 +234,42 @@ document.getElementById('save-dimensions').addEventListener('click',()=>{
 document.getElementById('clear-dimensions').addEventListener('click',()=>{document.getElementById('column-width').value='';document.getElementById('column-depth').value='';document.getElementById('column-height').value='';delete columnDimensions[activeColumn];localStorage.setItem('civilToolColumnDimensions',JSON.stringify(columnDimensions));document.getElementById('dimension-status').textContent='Dimension clear করা হয়েছে।';updateConversion()});
 renderColumns();
 
+function columnVolumeCft(){
+ const unit=document.getElementById('dimension-unit').value;
+ const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
+ if(![w,d,h].every(v=>Number.isFinite(v)&&v>0)) return null;
+ const volume=w*d*h;
+ return unit==='m'?volume*35.3146667:(unit==='ft'?volume:volume/1728);
+}
+function updateColumnVolume(){
+ const v=columnVolumeCft();
+ const box=document.getElementById('column-volume-result');
+ if(v===null){box.textContent='Column volume: Width, Depth ও Height-এর সঠিক মান দিন।';return}
+ box.textContent='Column concrete volume: '+formatNumber(v)+' cft ('+formatNumber(v/35.3146667)+' m³)';
+}
 function calculateConcrete(){
- const volume=parseFloat(document.getElementById('concrete-volume').value);
+ const volume=columnVolumeCft();
  const factor=parseFloat(document.getElementById('dry-factor').value);
  const grade=document.getElementById('concrete-grade').value;
  const aggregate=document.getElementById('aggregate-type').value;
  const out=document.getElementById('concrete-results');
- if(!Number.isFinite(volume)||volume<=0||!Number.isFinite(factor)||factor<1||factor>2){out.innerHTML='<div class="result">Concrete volume 0-এর বেশি এবং dry factor 1 থেকে 2-এর মধ্যে দিন।</div>';return}
+ if(volume===null){out.innerHTML='<div class="result">আগে Column-এর Width, Depth ও Height—তিনটি dimension সঠিকভাবে দিন।</div>';return}
+ if(!Number.isFinite(factor)||factor<1||factor>2){out.innerHTML='<div class="result">Dry factor 1 থেকে 2-এর মধ্যে দিন।</div>';return}
  if(grade==='design'){
-  out.innerHTML='<div class="result">M25 বা তার বেশি grade-এর জন্য শুধু fixed ratio দিয়ে নির্ভরযোগ্য material quantity নির্ধারণ করা যায় না। Approved mix design-এর cement content, water-cement ratio, fine/coarse aggregate proportions এবং moisture corrections ব্যবহার করুন।</div>';
+  out.innerHTML='<div class="result">M25 বা তার বেশি grade-এর জন্য fixed ratio যথেষ্ট নয়। Approved mix design-এর cement content, water-cement ratio, aggregate proportions এবং moisture corrections ব্যবহার করুন।</div>';
   return;
  }
- const parts=grade.split(',').map(Number),sum=parts.reduce((a,b)=>a+b,0);
- const dry=volume*factor;
- const cementCft=dry*parts[0]/sum;
- const sandCft=dry*parts[1]/sum;
- const chipsCft=dry*parts[2]/sum;
- const bags=cementCft/1.25;
+ const parts=grade.split(',').map(Number),sum=parts.reduce((a,b)=>a+b,0),dry=volume*factor;
+ const cementCft=dry*parts[0]/sum,sandCft=dry*parts[1]/sum,chipsCft=dry*parts[2]/sum,bags=cementCft/1.25;
  const brickCount=aggregate==='brick'?Math.ceil(chipsCft*9):null;
  const fmt=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
- let html='<div class="result">Estimated materials for '+fmt(volume)+' cft wet concrete</div>';
- html+='<div class="grid"><div class="dimension-card"><strong>Cement</strong><p>'+fmt(cementCft)+' cft</p><p>'+fmt(bags)+' bags (50 kg/bag approx.)</p></div>';
- html+='<div class="dimension-card"><strong>Sand</strong><p>'+fmt(sandCft)+' cft</p></div>';
- html+='<div class="dimension-card"><strong>'+(aggregate==='brick'?'Brick Chips':'Stone Chips')+'</strong><p>'+fmt(chipsCft)+' cft</p>'+(aggregate==='brick'?'<p>ইটের সংখ্যা: প্রায় '+brickCount+'টি</p>':'')+'</div></div>';
- html+='<p class="muted" style="margin-top:12px">Nominal ratio: '+parts.join(':')+'. Dry material volume: '+fmt(dry)+' cft. Cement bag volume assumed 1.25 cft.</p>';
- html+='<p class="muted">এটি preliminary estimate, guaranteed yield নয়। Sand bulking, aggregate moisture, wastage, actual cement bag volume ও site mix অনুযায়ী পরিমাণ পরিবর্তিত হতে পারে।</p>';
- html+='<p class="muted"><strong>Safety:</strong> M20-এর 1:1.5:3 এখানে প্রচলিত nominal estimate; এটি নিজে থেকে approved structural mix design-এর বিকল্প নয়।</p>';
+ let html='<div class="result">Materials for this column: '+fmt(volume)+' cft wet concrete</div>';
+ html+='<div class="grid"><div class="dimension-card"><strong>Cement</strong><p>'+fmt(cementCft)+' cft</p><p>'+fmt(bags)+' bags (50 kg/bag approx.)</p></div><div class="dimension-card"><strong>Sand</strong><p>'+fmt(sandCft)+' cft</p></div><div class="dimension-card"><strong>'+(aggregate==='brick'?'Brick Chips':'Stone Chips')+'</strong><p>'+fmt(chipsCft)+' cft</p>'+(aggregate==='brick'?'<p>ইটের সংখ্যা: প্রায় '+brickCount+'টি</p>':'')+'</div></div>';
+ html+='<p class="muted" style="margin-top:12px">Nominal ratio: '+parts.join(':')+'. Dry material volume: '+fmt(dry)+' cft. Cement bag volume assumed 1.25 cft.</p><p class="muted">এটি preliminary estimate; moisture, bulking, wastage, aggregate grading এবং actual yield অনুযায়ী পরিমাণ বদলাতে পারে। M20-এর 1:1.5:3 এখানে nominal estimate, approved structural mix design-এর বিকল্প নয়।</p>';
  out.innerHTML=html;
 }
 document.getElementById('calculate-concrete').addEventListener('click',calculateConcrete);
-document.getElementById('reset-concrete').addEventListener('click',()=>{
- document.getElementById('concrete-volume').value='100';
- document.getElementById('concrete-grade').value='1,1.5,3';
- document.getElementById('aggregate-type').value='stone';
- document.getElementById('dry-factor').value='1.54';
- document.getElementById('concrete-results').replaceChildren();
-});
+document.getElementById('reset-concrete').addEventListener('click',()=>{document.getElementById('concrete-grade').value='1,1.5,3';document.getElementById('aggregate-type').value='stone';document.getElementById('dry-factor').value='1.54';document.getElementById('concrete-results').replaceChildren()});
 
 </script>
 </body>
