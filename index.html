@@ -210,6 +210,7 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 <script>
 const homeView=document.getElementById('home-view');
 const columnsView=document.getElementById('columns-view');
+const projectSummaryView=document.getElementById('project-summary-view');
 const detailView=document.getElementById('detail-view');
 const pageTitle=document.getElementById('page-title');
 const pageIntro=document.getElementById('page-intro');
@@ -221,10 +222,11 @@ const columnDimensions=JSON.parse(localStorage.getItem('civilToolColumnDimension
 let activeColumn=1;
 function show(view){
  currentView=view;bottomBack.classList.toggle('visible',view!=='home');
- homeView.hidden=view!=='home';columnsView.hidden=view!=='columns';detailView.hidden=view!=='detail';
+ homeView.hidden=view!=='home';columnsView.hidden=view!=='columns';detailView.hidden=view!=='detail';projectSummaryView.hidden=view!=='project-summary';
  if(view==='home'){pageTitle.textContent='Civil Engineering Tools';pageIntro.textContent='Choose a structural member to open its tools.'}
  if(view==='columns'){pageTitle.textContent='Column Workspace';pageIntro.textContent='Manage your column entries.'}
  if(view==='detail'){pageTitle.textContent=document.getElementById('detail-title').textContent;pageIntro.textContent='Column workspace';loadDimensions(activeColumn)}
+ if(view==='project-summary'){pageTitle.textContent='Building Material Summary';pageIntro.textContent='Whole-building concrete and steel totals';renderProjectSummary()}
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function renderColumns(){
@@ -240,8 +242,10 @@ function renderColumns(){
 document.getElementById('open-columns').addEventListener('click',()=>{renderColumns();show('columns')});
 document.getElementById('back-home').addEventListener('click',()=>show('home'));
 document.getElementById('back-columns').addEventListener('click',()=>{renderColumns();show('columns')});
-bottomBack.addEventListener('click',()=>{if(currentView==='detail'){renderColumns();show('columns')}else if(currentView==='columns'){show('home')}});
+bottomBack.addEventListener('click',()=>{if(currentView==='detail'){renderColumns();show('columns')}else if(currentView==='columns'){show('home')}else if(currentView==='project-summary'){show('columns')}});
 document.getElementById('add-column').addEventListener('click',()=>{columns.push(columns.length?Math.max(...columns)+1:1);localStorage.setItem('civilToolColumns',JSON.stringify(columns));renderColumns()});
+document.getElementById('open-project-summary').addEventListener('click',()=>show('project-summary'));
+document.getElementById('back-project-summary').addEventListener('click',()=>show('columns'));
 function formatNumber(n){return Number(n.toFixed(4)).toString()}
 function updateConversion(){
  const unit=document.getElementById('dimension-unit').value;
