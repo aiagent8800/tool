@@ -173,14 +173,6 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
  <p class="muted" style="margin-top:12px">Brick chips estimate: 1 cft = 9টি ইট (আপনার দেওয়া conversion)। Cement bag volume 1.25 cft ধরা হয়েছে। এটি preliminary estimate; structural work-এর জন্য approved mix design ও project specification অনুসরণ করুন।</p>
 </div>
 
-<div class="dimension-card summary-card" style="margin-top:18px" id="column-summary">
- <div class="summary-heading"><div><div class="summary-kicker">PROJECT SNAPSHOT</div><h3 class="section-title" style="margin:5px 0 4px;font-size:20px">Column Material Summary</h3></div><span class="summary-icon">▤</span></div>
- <p class="muted" id="summary-hint">Width, Depth ও Height—তিনটি মান দিলেই summary স্বয়ংক্রিয়ভাবে দেখাবে। প্রয়োজনে Calculate Materials চাপুন।</p>
- <div id="summary-content"></div>
- <button class="secondary" id="copy-summary" type="button" style="margin-top:14px">Copy Summary</button>
- <p class="muted" id="summary-copy-status" role="status" style="margin-bottom:0"></p>
-</div>
-
 <div class="dimension-card" style="margin-top:16px">
  <h3 class="section-title" style="margin-top:0">Steel Reinforcement</h3>
  <p class="muted">Column-এর main bars ও ties/stirrups-এর আনুমানিক steel weight হিসাব করুন। এটি quantity estimate—reinforcement design নয়।</p>
@@ -197,6 +189,14 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
  <div class="detail-actions"><button class="primary" id="calculate-steel" type="button">Calculate Steel</button><button class="secondary" id="reset-steel" type="button">Reset Steel</button></div>
  <div id="steel-results" aria-live="polite"></div>
  <p class="muted" style="margin-top:12px">Weight formula: d²/162 kg/m (approx.). Main-bar length is estimated as column height only; lap, anchorage, hooks, wastage, tie shape and seismic detailing are not fully included. Final bar detailing must comply with BNBC 2020 and approved structural drawings.</p>
+</div>
+
+<div class="dimension-card summary-card" style="margin-top:18px" id="column-summary">
+ <div class="summary-heading"><div><div class="summary-kicker">PROJECT SNAPSHOT</div><h3 class="section-title" style="margin:5px 0 4px;font-size:20px">Column Material Summary</h3></div><span class="summary-icon">▤</span></div>
+ <p class="muted" id="summary-hint">Width, Depth ও Height—তিনটি মান দিলেই summary স্বয়ংক্রিয়ভাবে দেখাবে। প্রয়োজনে Calculate Materials চাপুন।</p>
+ <div id="summary-content"></div>
+ <button class="secondary" id="copy-summary" type="button" style="margin-top:14px">Copy Summary</button>
+ <p class="muted" id="summary-copy-status" role="status" style="margin-bottom:0"></p>
 </div>
 
 <div class="grid">
