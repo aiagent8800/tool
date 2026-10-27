@@ -383,6 +383,29 @@ function renderColumnSummary(data){
  lastSummaryText='Column '+activeColumn+'\nCross-section: '+fmt(wm*1000)+' × '+fmt(dm*1000)+' mm\nHeight: '+fmt(hm)+' m\nConcrete volume: '+fmt(data.volume)+' cft ('+fmt(data.volume/35.3146667)+' m³)\nMix ratio: '+data.parts.join(':')+'\nCement: '+fmt(data.bags)+' bags; purchase estimate '+roundedBags+' whole bags\nSand: '+fmt(data.sandCft)+' cft\n'+stoneLabel+': '+fmt(data.chipsCft)+' cft'+(data.aggregate==='brick'?'\nEstimated bricks: '+data.brickCount+' pcs':'');
  document.getElementById('summary-copy-status').textContent='';
 }
+let buildingSummaryText='';
+function renderProjectSummary(){
+ const ms=JSON.parse(localStorage.getItem('civilToolCalculatedMaterials')||'{}');
+ const ss=JSON.parse(localStorage.getItem('civilToolCalculatedSteel')||'{}');
+ const fmt=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2});
+ const ids=columns.filter(n=>ms[n]||ss[n]),box=document.getElementById('project-summary-content');
+ if(!ids.length){box.innerHTML='<div class="dimension-card"><strong>এখনো কোনো হিসাব save হয়নি</strong><p class="muted">প্রতিটি Column-এ গিয়ে Calculate Materials এবং Calculate Steel চাপুন। তারপর এখানে total দেখা যাবে।</p></div>';buildingSummaryText='';return}
+ let vol=0,bags=0,sand=0,agg=0,steel=0,main=0,ties=0,rows='';
+ ids.forEach(n=>{
+  const m=ms[n],s=ss[n];
+  if(m){vol+=m.volume||0;bags+=m.bags||0;sand+=m.sandCft||0;agg+=m.chipsCft||0}
+  if(s){steel+=s.total||0;main+=s.mainWeight||0;ties+=s.tieWeight||0}
+  rows+='<div class="dimension-card" style="margin-top:12px"><h3 class="section-title">Column '+n+'</h3><div class="summary-materials">'+(m?'<div class="summary-material"><div class="material-label">Concrete</div><strong>'+fmt(m.volume)+' cft</strong></div><div class="summary-material"><div class="material-label">Cement</div><strong>'+fmt(m.bags)+' bags</strong></div><div class="summary-material"><div class="material-label">Sand</div><strong>'+fmt(m.sandCft)+' cft</strong></div><div class="summary-material"><div class="material-label">'+(m.aggregate==='brick'?'Brick chips':'Stone chips')+'</div><strong>'+fmt(m.chipsCft)+' cft</strong></div>':'<div class="summary-material"><strong>Concrete not calculated</strong></div>')+(s?'<div class="summary-material"><div class="material-label">Main bar steel</div><strong>'+fmt(s.mainWeight)+' kg</strong></div><div class="summary-material"><div class="material-label">Tie steel</div><strong>'+fmt(s.tieWeight)+' kg</strong></div><div class="summary-material"><div class="material-label">Total steel</div><strong>'+fmt(s.total)+' kg</strong></div>':'<div class="summary-material"><strong>Steel not calculated</strong></div>')+'</div></div>';
+ });
+ box.innerHTML='<div class="summary-materials"><div class="summary-material"><div class="material-label">Columns with results</div><strong>'+ids.length+' / '+columns.length+'</strong></div><div class="summary-material"><div class="material-label">Total concrete</div><strong>'+fmt(vol)+' cft</strong><small>'+fmt(vol/35.3146667)+' m³</small></div><div class="summary-material"><div class="material-label">Cement</div><strong>'+fmt(bags)+' bags</strong><small>Purchase estimate '+Math.ceil(bags)+' whole bags</small></div><div class="summary-material"><div class="material-label">Sand</div><strong>'+fmt(sand)+' cft</strong></div><div class="summary-material"><div class="material-label">Aggregate</div><strong>'+fmt(agg)+' cft</strong><small>Stone/brick chips combined</small></div><div class="summary-material"><div class="material-label">Total steel</div><strong>'+fmt(steel)+' kg</strong><small>Main '+fmt(main)+' kg + ties '+fmt(ties)+' kg</small></div></div><h3 class="section-title" style="margin-top:22px">Column-by-column details</h3>'+rows+'<p class="summary-footnote">শুধু যেসব কলামের হিসাব calculate করা হয়েছে, সেগুলো total-এ যোগ হয়েছে। এটি preliminary estimate; approved mix design ও structural drawings দিয়ে যাচাই করুন।</p>';
+ buildingSummaryText='BUILDING SUMMARY\nConcrete: '+fmt(vol)+' cft ('+fmt(vol/35.3146667)+' m3)\nCement: '+fmt(bags)+' bags\nSand: '+fmt(sand)+' cft\nAggregate: '+fmt(agg)+' cft\nSteel: '+fmt(steel)+' kg (main '+fmt(main)+' kg, ties '+fmt(ties)+' kg)';
+}
+document.getElementById('copy-project-summary').addEventListener('click',()=>{
+ const status=document.getElementById('project-summary-status');
+ if(!buildingSummaryText){status.textContent='আগে Column-এর material হিসাব করুন।';return}
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(buildingSummaryText).then(()=>status.textContent='Building summary copied.').catch(()=>status.textContent='Copy করা যায়নি।');
+ else status.textContent='এই browser-এ automatic copy support নেই।';
+});
 document.getElementById('copy-summary').addEventListener('click',()=>{
  if(!lastSummaryText){document.getElementById('summary-copy-status').textContent='আগে Calculate Materials চাপ দিয়ে summary তৈরি করুন।';return}
  const status=document.getElementById('summary-copy-status');
