@@ -258,7 +258,15 @@ function updateConversion(){
  updateColumnVolume();
  document.getElementById('concrete-results').replaceChildren();
  const summaryContent=document.getElementById('summary-content');
- if(summaryContent){summaryContent.replaceChildren();document.getElementById('summary-hint').textContent='Dimension পরিবর্তন হয়েছে। নতুন quantity দেখতে Calculate Materials চাপুন।';document.getElementById('summary-copy-status').textContent='';lastSummaryText='';}
+ if(summaryContent){
+  summaryContent.replaceChildren();
+  document.getElementById('summary-hint').textContent='Dimension পরিবর্তন হয়েছে। সঠিক তিনটি dimension দিলে summary স্বয়ংক্রিয়ভাবে আপডেট হবে।';
+  document.getElementById('summary-copy-status').textContent='';
+  lastSummaryText='';
+ }
+ if([w,d,h].every(v=>Number.isFinite(v)&&v>0)&&typeof calculateConcrete==='function'){
+  calculateConcrete();
+ }
 }
 function loadDimensions(number){
  const data=columnDimensions[number];const unit=document.getElementById('dimension-unit');
@@ -373,7 +381,7 @@ document.getElementById('copy-summary').addEventListener('click',()=>{
  else {status.textContent='এই browser-এ automatic copy support নেই।'}
 });
 document.getElementById('calculate-concrete').addEventListener('click',calculateConcrete);
-document.getElementById('reset-concrete').addEventListener('click',()=>{document.getElementById('concrete-grade').value='1,1.5,3';document.getElementById('aggregate-type').value='stone';document.getElementById('dry-factor').value='1.54';document.getElementById('concrete-results').replaceChildren()});
+document.getElementById('reset-concrete').addEventListener('click',()=>{document.getElementById('concrete-grade').value='1,1.5,3';document.getElementById('aggregate-type').value='stone';document.getElementById('dry-factor').value='1.54';document.getElementById('concrete-results').replaceChildren();if([parseFloat(document.getElementById('column-width').value),parseFloat(document.getElementById('column-depth').value),parseFloat(document.getElementById('column-height').value)].every(v=>Number.isFinite(v)&&v>0))calculateConcrete()});
 
 </script>
 </body>
