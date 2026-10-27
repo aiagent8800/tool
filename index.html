@@ -257,6 +257,8 @@ function updateConversion(){
  document.getElementById('dimension-conversion').textContent=parts.length?('Equivalent: '+parts.join(' • ')):'Cross-section ও height-এর মান এখানে দেখানো হবে.';
  updateColumnVolume();
  document.getElementById('concrete-results').replaceChildren();
+ const summaryContent=document.getElementById('summary-content');
+ if(summaryContent){summaryContent.replaceChildren();document.getElementById('summary-hint').textContent='Dimension পরিবর্তন হয়েছে। নতুন quantity দেখতে Calculate Materials চাপুন।';document.getElementById('summary-copy-status').textContent='';lastSummaryText='';}
 }
 function loadDimensions(number){
  const data=columnDimensions[number];const unit=document.getElementById('dimension-unit');
@@ -331,6 +333,7 @@ function calculateConcrete(){
  if(!Number.isFinite(factor)||factor<1||factor>2){out.innerHTML='<div class="result">Dry factor 1 থেকে 2-এর মধ্যে দিন।</div>';return}
  if(grade==='design'){
   out.innerHTML='<div class="result">M25 বা তার বেশি grade-এর জন্য fixed ratio যথেষ্ট নয়। Approved mix design-এর cement content, water-cement ratio, aggregate proportions এবং moisture corrections ব্যবহার করুন।</div>';
+  document.getElementById('summary-content').replaceChildren();lastSummaryText='';document.getElementById('summary-hint').textContent='M25 বা তার বেশি grade-এর জন্য approved mix design-এর তথ্য দিয়ে summary তৈরি করতে হবে।';
   return;
  }
  const parts=grade.split(',').map(Number),sum=parts.reduce((a,b)=>a+b,0),dry=volume*factor;
