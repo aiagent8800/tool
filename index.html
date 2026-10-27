@@ -92,6 +92,17 @@ input:focus,select:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 4px 
 .summary-material strong{display:block;font-size:20px;letter-spacing:-.03em;color:#123b70;margin:6px 0 3px;overflow-wrap:anywhere}
 .summary-material small{font-size:11px;color:#64748b;line-height:1.5}
 .summary-footnote{margin-top:14px;padding:11px 12px;border-radius:11px;background:#eef5ff;color:#315887;font-size:12px;line-height:1.65}.table-wrap{width:100%;overflow-x:auto;margin-top:10px;border:1px solid #e1e9f4;border-radius:13px;background:#fff}.material-table{width:100%;border-collapse:collapse;min-width:280px;font-size:13px}.material-table th,.material-table td{padding:12px 10px;text-align:left;border-bottom:1px solid #e8eef6;white-space:nowrap}.material-table th{background:#edf4ff;color:#23466f;font-weight:800}.material-table tr:last-child td{border-bottom:0}
+/* Keep calculator outputs fully readable on phones without sideways scrolling */
+.table-wrap{overflow:visible!important;width:100%;max-width:100%;margin-top:10px;border:1px solid #e1e9f4;border-radius:12px;background:#fff}
+.material-table{width:100%;min-width:0!important;table-layout:fixed;font-size:12px}
+.material-table th,.material-table td{padding:10px 7px;white-space:normal!important;overflow-wrap:anywhere;word-break:normal;line-height:1.45;vertical-align:top}
+.material-table th{font-size:11px}
+.material-table th:first-child,.material-table td:first-child{text-align:left}
+.material-table th:not(:first-child),.material-table td:not(:first-child){text-align:right}
+.output-section{min-width:0;padding:12px}
+#project-summary-content,#project-summary-inline-content,#summary-content,#concrete-results,#steel-results{min-width:0;max-width:100%}
+@media(max-width:480px){.material-table{font-size:11px}.material-table th,.material-table td{padding:9px 5px;letter-spacing:-.02em}.material-table th{font-size:10px}.output-section{padding:10px}}
+
 .material-table tbody tr:nth-child(even){background:#f8fbff}.material-table td:last-child,.material-table th:last-child{text-align:right}.material-table td:nth-child(2),.material-table th:nth-child(2){text-align:right}.output-section{margin-top:14px;padding:16px;border:1px solid #dce7f5;border-radius:16px;background:linear-gradient(145deg,#fff,#f8fbff)}.output-section h3,.output-section h4{margin:0 0 10px;color:#1e3a5f}.output-section h4{margin-top:18px;font-size:14px}.output-total{font-weight:850;color:#123b70;background:#edf4ff!important}
 @media(max-width:480px){.summary-size{gap:6px}.summary-metric{padding:9px}.summary-metric strong{font-size:13px}.summary-material{padding:12px}}
 .conversion{margin-top:14px;padding:12px 13px;border-radius:12px;background:#eef5ff;border:1px solid #dbeafe;color:#315887;font-size:12px;line-height:1.7;min-height:44px}
