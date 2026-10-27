@@ -157,8 +157,8 @@ const pageIntro=document.getElementById('page-intro');
 const list=document.getElementById('column-list');
 const bottomBack=document.getElementById('bottom-back');
 let currentView='home';
-let columns=[1,2,3];
-const columnDimensions={};
+let columns=JSON.parse(localStorage.getItem('civilToolColumns')||'[1,2,3]');
+const columnDimensions=JSON.parse(localStorage.getItem('civilToolColumnDimensions')||'{}');
 let activeColumn=1;
 function show(view){
  currentView=view;bottomBack.classList.toggle('visible',view!=='home');
@@ -182,7 +182,7 @@ document.getElementById('open-columns').addEventListener('click',()=>{renderColu
 document.getElementById('back-home').addEventListener('click',()=>show('home'));
 document.getElementById('back-columns').addEventListener('click',()=>{renderColumns();show('columns')});
 bottomBack.addEventListener('click',()=>{if(currentView==='detail'){renderColumns();show('columns')}else if(currentView==='columns'){show('home')}});
-document.getElementById('add-column').addEventListener('click',()=>{columns.push(columns.length?Math.max(...columns)+1:1);renderColumns()});
+document.getElementById('add-column').addEventListener('click',()=>{columns.push(columns.length?Math.max(...columns)+1:1);localStorage.setItem('civilToolColumns',JSON.stringify(columns));renderColumns()});
 function formatNumber(n){return Number(n.toFixed(4)).toString()}
 function updateConversion(){
  const unit=document.getElementById('dimension-unit').value;
@@ -211,9 +211,9 @@ document.getElementById('save-dimensions').addEventListener('click',()=>{
  const unit=document.getElementById('dimension-unit').value;
  const width=parseFloat(document.getElementById('column-width').value),depth=parseFloat(document.getElementById('column-depth').value),height=parseFloat(document.getElementById('column-height').value);
  if(!Number.isFinite(width)||width<=0||!Number.isFinite(depth)||depth<=0||!Number.isFinite(height)||height<=0){document.getElementById('dimension-status').textContent='দয়া করে Width, Depth এবং Height—তিনটিতেই শূন্যের বেশি মান দিন।';return}
- columnDimensions[activeColumn]={unit,width,depth,height};document.getElementById('dimension-status').textContent='✓ Column '+activeColumn+' এর dimension এই session-এ save হয়েছে।';updateConversion();
+ columnDimensions[activeColumn]={unit,width,depth,height};localStorage.setItem('civilToolColumnDimensions',JSON.stringify(columnDimensions));document.getElementById('dimension-status').textContent='✓ Column '+activeColumn+' এর dimension এই device/browser-এ save হয়েছে।';updateConversion();
 });
-document.getElementById('clear-dimensions').addEventListener('click',()=>{document.getElementById('column-width').value='';document.getElementById('column-depth').value='';document.getElementById('column-height').value='';delete columnDimensions[activeColumn];document.getElementById('dimension-status').textContent='Dimension clear করা হয়েছে।';updateConversion()});
+document.getElementById('clear-dimensions').addEventListener('click',()=>{document.getElementById('column-width').value='';document.getElementById('column-depth').value='';document.getElementById('column-height').value='';delete columnDimensions[activeColumn];localStorage.setItem('civilToolColumnDimensions',JSON.stringify(columnDimensions));document.getElementById('dimension-status').textContent='Dimension clear করা হয়েছে।';updateConversion()});
 renderColumns();
 </script>
 </body>
