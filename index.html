@@ -26,7 +26,7 @@ h2{margin:0 0 8px;font-size:22px}.muted{color:var(--muted);font-size:14px;line-h
 .column-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:18px}
 .column-card{border:1px solid var(--line);background:#fff;border-radius:14px;padding:17px;text-align:left;cursor:pointer}.column-card:hover{border-color:#93c5fd}
 .column-card strong{display:block;font-size:17px}.column-card span{display:block;color:var(--muted);font-size:13px;margin-top:5px}
-label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit}
+label{display:block;font-size:13px;font-weight:750;margin:12px 0 6px}input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;background:#fff;color:#172033}input:focus,select:focus{outline:3px solid #bfdbfe;border-color:#60a5fa}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{min-width:0}.unit-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:16px 0 8px}.unit-row label{margin:0}.unit-select{max-width:170px}.dimension-card{padding:16px;border:1px solid var(--line);border-radius:14px;background:#fbfdff}.conversion{font-size:12px;color:var(--muted);margin-top:5px;min-height:18px}.save-note{font-size:13px;color:#166534;margin-top:12px}.detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.section-title{font-size:16px;margin:18px 0 6px}@media(max-width:480px){.form-grid{grid-template-columns:1fr 1fr;gap:9px}.dimension-card{padding:12px}input,select{padding:11px 9px}}
 .result{margin-top:14px;padding:13px;border:1px solid #bfdbfe;background:#eff6ff;color:#1e3a8a;border-radius:10px;font-weight:750}
 footer{text-align:center;padding:0 16px 28px;color:var(--muted);font-size:12px}
 [hidden]{display:none!important}
@@ -56,10 +56,22 @@ footer{text-align:center;padding:0 16px 28px;color:var(--muted);font-size:12px}
 <section class="panel" id="detail-view" hidden>
 <button class="back" id="back-columns" type="button"><span class="back-icon" aria-hidden="true">‹</span><span class="back-label">Back to Column</span></button>
 <h2 id="detail-title">Column 1</h2>
-<p class="muted">This is the selected column workspace. The next development step can add dimensions, material strengths, reinforcement inputs and design checks.</p>
+<p class="muted">প্রতিটি কলামের Cross-section (প্রস্থ × গভীরতা) এবং Height লিখুন। Feet বা Meter—যে একক বেছে নেবেন, ইনপুট সেই এককেই হবে।</p>
+<div class="dimension-card">
+ <div class="unit-row"><label for="dimension-unit">Input unit / একক নির্বাচন</label><select id="dimension-unit" class="unit-select"><option value="m">Meter (m)</option><option value="ft">Feet (ft)</option></select></div>
+ <h3 class="section-title">Cross-section</h3>
+ <div class="form-grid">
+  <div class="field"><label for="column-width">Width / প্রস্থ</label><input id="column-width" type="number" min="0" step="any" inputmode="decimal" placeholder="যেমন 0.30"></div>
+  <div class="field"><label for="column-depth">Depth / গভীরতা</label><input id="column-depth" type="number" min="0" step="any" inputmode="decimal" placeholder="যেমন 0.45"></div>
+ </div>
+ <h3 class="section-title">Column Height</h3>
+ <div class="field"><label for="column-height">Height / উচ্চতা</label><input id="column-height" type="number" min="0" step="any" inputmode="decimal" placeholder="যেমন 3.0"></div>
+ <div class="conversion" id="dimension-conversion">Cross-section ও height-এর মান এখানে দেখানো হবে।</div>
+ <div class="detail-actions"><button class="primary" id="save-dimensions" type="button">Save Dimensions</button><button class="secondary" id="clear-dimensions" type="button">Clear</button></div>
+ <p class="save-note" id="dimension-status" role="status">এই কলামের dimension এখনো save করা হয়নি।</p>
+</div>
 <div class="grid">
-<div class="tile" style="cursor:default"><div class="emoji" aria-hidden="true">📏</div><h3>Dimensions</h3><p>Column width and depth inputs — planned.</p></div>
-<div class="tile" style="cursor:default"><div class="emoji" aria-hidden="true">🧮</div><h3>Design Calculation</h3><p>Code-based column design — planned.</p></div>
+ <div class="tile" style="cursor:default"><div class="emoji" aria-hidden="true">🧮</div><h3>Design Calculation</h3><p>Dimension input প্রস্তুত। Code-based design calculation পরবর্তী ধাপে যোগ করা যাবে।</p></div>
 </div>
 </section>
 </main>
@@ -75,12 +87,14 @@ const list=document.getElementById('column-list');
 const bottomBack=document.getElementById('bottom-back');
 let currentView='home';
 let columns=[1,2,3];
+const columnDimensions={};
+let activeColumn=1;
 function show(view){
  currentView=view;bottomBack.classList.toggle('visible',view!=='home');
  homeView.hidden=view!=='home';columnsView.hidden=view!=='columns';detailView.hidden=view!=='detail';
  if(view==='home'){pageTitle.textContent='Civil Engineering Tools';pageIntro.textContent='Choose a structural member to open its tools.'}
  if(view==='columns'){pageTitle.textContent='Column Workspace';pageIntro.textContent='Manage your column entries.'}
- if(view==='detail'){pageTitle.textContent=document.getElementById('detail-title').textContent;pageIntro.textContent='Column workspace'}
+ if(view==='detail'){pageTitle.textContent=document.getElementById('detail-title').textContent;pageIntro.textContent='Column workspace';loadDimensions(activeColumn)}
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function renderColumns(){
@@ -89,7 +103,7 @@ function renderColumns(){
   const button=document.createElement('button');button.type='button';button.className='column-card';
   const strong=document.createElement('strong');strong.textContent='Column '+number;
   const span=document.createElement('span');span.textContent='Tap to open';
-  button.append(strong,span);button.addEventListener('click',()=>{document.getElementById('detail-title').textContent='Column '+number;show('detail')});
+  button.append(strong,span);button.addEventListener('click',()=>{activeColumn=number;document.getElementById('detail-title').textContent='Column '+number;show('detail')});
   list.append(button);
  });
 }
@@ -98,6 +112,30 @@ document.getElementById('back-home').addEventListener('click',()=>show('home'));
 document.getElementById('back-columns').addEventListener('click',()=>{renderColumns();show('columns')});
 bottomBack.addEventListener('click',()=>{if(currentView==='detail'){renderColumns();show('columns')}else if(currentView==='columns'){show('home')}});
 document.getElementById('add-column').addEventListener('click',()=>{columns.push(columns.length?Math.max(...columns)+1:1);renderColumns()});
+function formatNumber(n){return Number(n.toFixed(4)).toString()}
+function updateConversion(){
+ const unit=document.getElementById('dimension-unit').value;
+ const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
+ const parts=[];
+ if(Number.isFinite(w)&&w>0)parts.push('Width: '+formatNumber(unit==='m'?w*3.28084:w/3.28084)+(unit==='m'?' ft':' m'));
+ if(Number.isFinite(d)&&d>0)parts.push('Depth: '+formatNumber(unit==='m'?d*3.28084:d/3.28084)+(unit==='m'?' ft':' m'));
+ if(Number.isFinite(h)&&h>0)parts.push('Height: '+formatNumber(unit==='m'?h*3.28084:h/3.28084)+(unit==='m'?' ft':' m'));
+ document.getElementById('dimension-conversion').textContent=parts.length?('Equivalent in '+(unit==='m'?'feet: ':'meters: ')+parts.join(' • ')):'Cross-section ও height-এর মান এখানে দেখানো হবে।';
+}
+function loadDimensions(number){
+ const data=columnDimensions[number];const unit=document.getElementById('dimension-unit');
+ unit.value=data?.unit||'m';document.getElementById('column-width').value=data?.width??'';document.getElementById('column-depth').value=data?.depth??'';document.getElementById('column-height').value=data?.height??'';
+ document.getElementById('dimension-status').textContent=data?'Column '+number+' dimensions saved.':'Column '+number+' এর dimension এখনো save করা হয়নি।';updateConversion();
+}
+document.getElementById('dimension-unit').addEventListener('change',updateConversion);
+['column-width','column-depth','column-height'].forEach(id=>document.getElementById(id).addEventListener('input',updateConversion));
+document.getElementById('save-dimensions').addEventListener('click',()=>{
+ const unit=document.getElementById('dimension-unit').value;
+ const width=parseFloat(document.getElementById('column-width').value),depth=parseFloat(document.getElementById('column-depth').value),height=parseFloat(document.getElementById('column-height').value);
+ if(!Number.isFinite(width)||width<=0||!Number.isFinite(depth)||depth<=0||!Number.isFinite(height)||height<=0){document.getElementById('dimension-status').textContent='দয়া করে Width, Depth এবং Height—তিনটিতেই শূন্যের বেশি মান দিন।';return}
+ columnDimensions[activeColumn]={unit,width,depth,height};document.getElementById('dimension-status').textContent='✓ Column '+activeColumn+' এর dimension এই session-এ save হয়েছে।';updateConversion();
+});
+document.getElementById('clear-dimensions').addEventListener('click',()=>{document.getElementById('column-width').value='';document.getElementById('column-depth').value='';document.getElementById('column-height').value='';delete columnDimensions[activeColumn];document.getElementById('dimension-status').textContent='Dimension clear করা হয়েছে।';updateConversion()});
 renderColumns();
 </script>
 </body>
