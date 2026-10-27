@@ -137,9 +137,10 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 <button class="back" id="back-home" type="button"><span class="back-icon" aria-hidden="true">‹</span><span class="back-label">Back to Structural Members</span></button>
 <h2>Column</h2><p class="muted">Select a column or add another entry.</p>
 <div class="column-list" id="column-list"></div>
-<div class="actions"><button class="primary" id="add-column" type="button">＋ Add Column</button></div>
+<div class="actions"><button class="primary" id="add-column" type="button">＋ Add Column</button><button class="secondary" id="open-project-summary" type="button">📊 Building Summary</button></div>
 <p class="muted">Each column entry is currently a workspace placeholder. Design inputs and calculations can be added next.</p>
 </section>
+<section class="panel" id="project-summary-view" hidden><button class="secondary" id="back-project-summary" type="button">‹ Back to Column Workspace</button><h2>Building Material Summary</h2><p class="muted">পুরো building-এর সব column-এর concrete ও steel quantity এখানে দেখাবে।</p><div id="project-summary-content"></div><button class="secondary" id="copy-project-summary" type="button">Copy Building Summary</button><p class="muted" id="project-summary-status"></p></section>
 <section class="panel" id="detail-view" hidden>
 <button class="back" id="back-columns" type="button"><span class="back-icon" aria-hidden="true">‹</span><span class="back-label">Back to Column</span></button>
 <h2 id="detail-title">Column 1</h2>
