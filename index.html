@@ -312,6 +312,7 @@ function calculateSteel(){
  const totalTieLength=tieCount*tieLengthEach;
  const tieWeight=totalTieLength*tieDia*tieDia/162;
  const total=mainWeight+tieWeight;
+ const steelStore=JSON.parse(localStorage.getItem('civilToolCalculatedSteel')||'{}');steelStore[activeColumn]={mainWeight,tieWeight,total,mainBarCount:totalMainCount,tieCount};localStorage.setItem('civilToolCalculatedSteel',JSON.stringify(steelStore));
  out.innerHTML='<div class="result">Estimated reinforcement steel: '+fmt(total)+' kg</div><div class="grid"><div class="dimension-card"><strong>Main bars — '+totalMainCount+' bars total</strong>'+mainRows+'<p><b>Main bar weight: '+fmt(mainWeight)+' kg</b></p></div><div class="dimension-card"><strong>Ties / stirrups</strong><p>Estimated count: '+tieCount+' pcs</p><p>Approx. total length: '+fmt(totalTieLength)+' m</p><p>Weight: '+fmt(tieWeight)+' kg</p></div><div class="dimension-card"><strong>Approx. total</strong><p>'+fmt(total)+' kg ('+fmt(total/1000)+' tonne)</p></div></div><p class="muted" style="margin-top:12px">Estimate excludes laps, starter bars, anchorage into footing/beam, actual hook configuration, extra confinement ties and wastage. Tie count and length are simplified estimates; verify with the structural detailing drawings.</p>';
 }
 document.getElementById('calculate-steel').addEventListener('click',calculateSteel);
@@ -356,6 +357,7 @@ function calculateConcrete(){
  const brickCount=aggregate==='brick'?Math.ceil(chipsCft*9):null;
  const fmt=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
  renderColumnSummary({volume,cementCft,sandCft,chipsCft,bags,brickCount,aggregate,grade,parts,dry});
+ const materialStore=JSON.parse(localStorage.getItem('civilToolCalculatedMaterials')||'{}');materialStore[activeColumn]={volume,cementCft,sandCft,chipsCft,bags,brickCount,aggregate,grade,parts,dry};localStorage.setItem('civilToolCalculatedMaterials',JSON.stringify(materialStore));
  let html='<div class="result">Materials for this column: '+fmt(volume)+' cft wet concrete</div>';
  html+='<div class="grid"><div class="dimension-card"><strong>Cement</strong><p>'+fmt(cementCft)+' cft</p><p>'+fmt(bags)+' bags (50 kg/bag approx.)</p></div><div class="dimension-card"><strong>Sand</strong><p>'+fmt(sandCft)+' cft</p></div><div class="dimension-card"><strong>'+(aggregate==='brick'?'Brick Chips':'Stone Chips')+'</strong><p>'+fmt(chipsCft)+' cft</p>'+(aggregate==='brick'?'<p>ইটের সংখ্যা: প্রায় '+brickCount+'টি</p>':'')+'</div></div>';
  html+='<p class="muted" style="margin-top:12px">Nominal ratio: '+parts.join(':')+'. Dry material volume: '+fmt(dry)+' cft. Cement bag volume assumed 1.25 cft.</p><p class="muted">এটি preliminary estimate; moisture, bulking, wastage, aggregate grading এবং actual yield অনুযায়ী পরিমাণ বদলাতে পারে। M20-এর 1:1.5:3 এখানে nominal estimate, approved structural mix design-এর বিকল্প নয়।</p>';
