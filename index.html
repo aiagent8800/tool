@@ -6,47 +6,86 @@
 <meta name="theme-color" content="#10233f">
 <title>Civil Engineering Tools</title>
 <style>
-:root{color-scheme:light;--navy:#10233f;--blue:#2563eb;--muted:#64748b;--line:#e2e8f0;--bg:#f4f7fb}
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#172033}
-header{background:linear-gradient(130deg,#10233f,#1d4f91);color:white;padding:30px 20px 42px}
-.wrap{max-width:1000px;margin:auto}.brand{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#bfdbfe}
-h1{font-size:clamp(28px,5vw,44px);margin:12px 0 8px;line-height:1.1}.intro{max-width:650px;color:#dbeafe;line-height:1.6;margin:0}
-main{max-width:1000px;margin:-18px auto 50px;padding:0 16px}.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 30px #10233f0d;margin-bottom:18px}
-h2{font-size:20px;margin:0 0 8px}.sub{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 18px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
-.tool{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}.tool-icon{font-size:25px}.tool h3{margin:10px 0 6px;font-size:17px}.tool p{color:var(--muted);font-size:14px;line-height:1.5;margin:0}
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#f4f7fb;--navy:#10233f;--blue:#2563eb;--muted:#64748b;--line:#e2e8f0}
+*{box-sizing:border-box}body{margin:0}header{padding:28px 18px 40px;color:#fff;background:linear-gradient(130deg,#10233f,#1d4f91)}
+.wrap{max-width:960px;margin:auto}.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:12px;font-weight:800;color:#bfdbfe}
+h1{font-size:clamp(29px,6vw,44px);line-height:1.1;margin:12px 0}header p{max-width:650px;color:#dbeafe;line-height:1.6;margin-bottom:0}
+main{max-width:960px;margin:-18px auto 0;padding:0 14px 36px}.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 28px #10233f0d}
+h2{margin:0 0 8px;font-size:22px}.muted{color:var(--muted);font-size:14px;line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
+.tile{display:block;text-align:left;width:100%;background:#fff;color:#172033;border:1px solid var(--line);border-radius:15px;padding:20px;cursor:pointer;transition:transform .15s,border-color .15s}
+.tile:hover{border-color:#93c5fd;transform:translateY(-2px)}.emoji{font-size:27px}.tile h3{margin:10px 0 5px;font-size:18px}.tile p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}.primary,.secondary{border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:white}.primary:hover{background:#1d4ed8}.secondary{background:#e2e8f0;color:#172033}
+.back{background:transparent;border:0;color:#1d4ed8;font:inherit;font-weight:750;padding:4px 0 16px;cursor:pointer}
+.column-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:18px}
+.column-card{border:1px solid var(--line);background:#fff;border-radius:14px;padding:17px;text-align:left;cursor:pointer}.column-card:hover{border-color:#93c5fd}
+.column-card strong{display:block;font-size:17px}.column-card span{display:block;color:var(--muted);font-size:13px;margin-top:5px}
 label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit}
-button{border:0;border-radius:10px;padding:12px 16px;background:var(--blue);color:white;font-weight:750;font:inherit;cursor:pointer;margin-top:14px}button:hover{background:#1d4ed8}
-.result{margin-top:14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px;color:#1e3a8a;font-weight:700;display:none}
-.note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 30px}
+.result{margin-top:14px;padding:13px;border:1px solid #bfdbfe;background:#eff6ff;color:#1e3a8a;border-radius:10px;font-weight:750}
+footer{text-align:center;padding:0 16px 28px;color:var(--muted);font-size:12px}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="brand">Civil Engineering Tools</div><h1>Practical tools for civil engineers</h1><p class="intro">A simple toolkit for construction calculations and RCC design workflows. More engineering tools can be added as the project grows.</p></div></header>
+<header><div class="wrap"><div class="eyebrow">Civil Engineering Tools</div><h1 id="page-title">Civil Engineering Tools</h1><p id="page-intro">Choose a structural member to open its tools.</p></div></header>
 <main>
-<section class="panel"><h2>Available calculator</h2><p class="sub">Start with a basic concrete volume calculation. Enter dimensions in metres.</p>
+<section class="panel" id="home-view">
+<h2>Structural Members</h2><p class="muted">Tap a member to enter its workspace.</p>
 <div class="grid">
-<div class="tool"><div class="tool-icon" aria-hidden="true">🧱</div><h3>Concrete Volume</h3><p>Calculate the geometric volume of a rectangular slab, beam, footing or other rectangular concrete element.</p>
-<label for="length">Length (m)</label><input id="length" type="number" min="0" step="any" placeholder="e.g. 5">
-<label for="width">Width (m)</label><input id="width" type="number" min="0" step="any" placeholder="e.g. 4">
-<label for="depth">Thickness / Height (m)</label><input id="depth" type="number" min="0" step="any" placeholder="e.g. 0.15">
-<button id="calculate" type="button">Calculate volume</button><div class="result" id="result" role="status" aria-live="polite"></div>
-<p class="note">This is a geometry calculator only. It does not include wastage, openings, reinforcement displacement, or structural design checks.</p></div>
-<div class="tool"><div class="tool-icon" aria-hidden="true">🏗️</div><h3>RCC Design Tools</h3><p>Planned area for slab, beam, column, footing, reinforcement detailing and code-aware design calculators.</p></div>
-<div class="tool"><div class="tool-icon" aria-hidden="true">📐</div><h3>Load & Analysis Tools</h3><p>Planned area for load calculations and structural analysis utilities.</p></div>
-</div></section>
+<button class="tile" id="open-columns"><div class="emoji" aria-hidden="true">🏛️</div><h3>Column</h3><p>Open column workspace and manage your column entries.</p></button>
+<button class="tile" type="button" disabled style="opacity:.65;cursor:default"><div class="emoji" aria-hidden="true">▰</div><h3>Beam</h3><p>Beam tools — planned.</p></button>
+<button class="tile" type="button" disabled style="opacity:.65;cursor:default"><div class="emoji" aria-hidden="true">▦</div><h3>Slab</h3><p>Slab tools — planned.</p></button>
+<button class="tile" type="button" disabled style="opacity:.65;cursor:default"><div class="emoji" aria-hidden="true">◩</div><h3>Footing</h3><p>Footing tools — planned.</p></button>
+</div>
+</section>
+<section class="panel" id="columns-view" hidden>
+<button class="back" id="back-home" type="button">← Back to Structural Members</button>
+<h2>Column</h2><p class="muted">Select a column or add another entry.</p>
+<div class="column-list" id="column-list"></div>
+<div class="actions"><button class="primary" id="add-column" type="button">＋ Add Column</button></div>
+<p class="muted">Each column entry is currently a workspace placeholder. Design inputs and calculations can be added next.</p>
+</section>
+<section class="panel" id="detail-view" hidden>
+<button class="back" id="back-columns" type="button">← Back to Column</button>
+<h2 id="detail-title">Column 1</h2>
+<p class="muted">This is the selected column workspace. The next development step can add dimensions, material strengths, reinforcement inputs and design checks.</p>
+<div class="grid">
+<div class="tile" style="cursor:default"><div class="emoji" aria-hidden="true">📏</div><h3>Dimensions</h3><p>Column width and depth inputs — planned.</p></div>
+<div class="tile" style="cursor:default"><div class="emoji" aria-hidden="true">🧮</div><h3>Design Calculation</h3><p>Code-based column design — planned.</p></div>
+</div>
+</section>
 </main>
-<footer>Built for learning and practical civil engineering workflows. Always verify engineering designs against applicable codes and project requirements.</footer>
+<footer>For learning and preliminary workflows. Verify structural designs against applicable codes and project requirements.</footer>
 <script>
-document.getElementById('calculate').addEventListener('click',function(){
- const ids=['length','width','depth'];const vals=ids.map(id=>Number(document.getElementById(id).value));
- const out=document.getElementById('result');out.style.display='block';
- if(ids.some((id,i)=>document.getElementById(id).value.trim()===''||!Number.isFinite(vals[i])||vals[i]<=0)){
-   out.textContent='Enter a positive number for all three dimensions.';return;
- }
- const volume=vals.reduce((a,b)=>a*b,1);
- out.textContent='Concrete volume: '+volume.toLocaleString(undefined,{maximumFractionDigits:4})+' m³';
-});
+const homeView=document.getElementById('home-view');
+const columnsView=document.getElementById('columns-view');
+const detailView=document.getElementById('detail-view');
+const pageTitle=document.getElementById('page-title');
+const pageIntro=document.getElementById('page-intro');
+const list=document.getElementById('column-list');
+let columns=[1,2,3];
+function show(view){
+ homeView.hidden=view!=='home';columnsView.hidden=view!=='columns';detailView.hidden=view!=='detail';
+ if(view==='home'){pageTitle.textContent='Civil Engineering Tools';pageIntro.textContent='Choose a structural member to open its tools.'}
+ if(view==='columns'){pageTitle.textContent='Column Workspace';pageIntro.textContent='Manage your column entries.'}
+ if(view==='detail'){pageTitle.textContent=document.getElementById('detail-title').textContent;pageIntro.textContent='Column workspace'}
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderColumns(){
+ list.replaceChildren();
+ columns.forEach(number=>{
+  const button=document.createElement('button');button.type='button';button.className='column-card';
+  const strong=document.createElement('strong');strong.textContent='Column '+number;
+  const span=document.createElement('span');span.textContent='Tap to open';
+  button.append(strong,span);button.addEventListener('click',()=>{document.getElementById('detail-title').textContent='Column '+number;show('detail')});
+  list.append(button);
+ });
+}
+document.getElementById('open-columns').addEventListener('click',()=>{renderColumns();show('columns')});
+document.getElementById('back-home').addEventListener('click',()=>show('home'));
+document.getElementById('back-columns').addEventListener('click',()=>{renderColumns();show('columns')});
+document.getElementById('add-column').addEventListener('click',()=>{columns.push(columns.length?Math.max(...columns)+1:1);renderColumns()});
+renderColumns();
 </script>
 </body>
 </html>
