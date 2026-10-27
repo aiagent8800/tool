@@ -58,7 +58,7 @@ footer{text-align:center;padding:0 16px 28px;color:var(--muted);font-size:12px}
 <h2 id="detail-title">Column 1</h2>
 <p class="muted">প্রতিটি কলামের Cross-section (প্রস্থ × গভীরতা) এবং Height লিখুন। Feet বা Meter—যে একক বেছে নেবেন, ইনপুট সেই এককেই হবে।</p>
 <div class="dimension-card">
- <div class="unit-row"><label for="dimension-unit">Input unit / একক নির্বাচন</label><select id="dimension-unit" class="unit-select"><option value="m">Meter (m)</option><option value="ft">Feet (ft)</option></select></div>
+ <div class="unit-row"><label for="dimension-unit">Input unit / একক নির্বাচন</label><select id="dimension-unit" class="unit-select"><option value="m">Meter (m)</option><option value="ft">Feet (ft)</option><option value="in">Inch (in)</option></select></div>
  <h3 class="section-title">Cross-section</h3>
  <div class="form-grid">
   <div class="field"><label for="column-width">Width / প্রস্থ</label><input id="column-width" type="number" min="0" step="any" inputmode="decimal" placeholder="যেমন 0.30"></div>
@@ -116,11 +116,18 @@ function formatNumber(n){return Number(n.toFixed(4)).toString()}
 function updateConversion(){
  const unit=document.getElementById('dimension-unit').value;
  const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
+ const factorToM=unit==='m'?1:(unit==='ft'?0.3048:0.0254);
+ const fields=[['Width',w],['Depth',d],['Height',h]];
  const parts=[];
- if(Number.isFinite(w)&&w>0)parts.push('Width: '+formatNumber(unit==='m'?w*3.28084:w/3.28084)+(unit==='m'?' ft':' m'));
- if(Number.isFinite(d)&&d>0)parts.push('Depth: '+formatNumber(unit==='m'?d*3.28084:d/3.28084)+(unit==='m'?' ft':' m'));
- if(Number.isFinite(h)&&h>0)parts.push('Height: '+formatNumber(unit==='m'?h*3.28084:h/3.28084)+(unit==='m'?' ft':' m'));
- document.getElementById('dimension-conversion').textContent=parts.length?('Equivalent in '+(unit==='m'?'feet: ':'meters: ')+parts.join(' • ')):'Cross-section ও height-এর মান এখানে দেখানো হবে।';
+ fields.forEach(([label,value])=>{
+  if(Number.isFinite(value)&&value>0){
+   const meters=value*factorToM;
+   if(unit==='in')parts.push(label+': '+formatNumber(meters)+' m / '+formatNumber(meters*3.28084)+' ft');
+   else if(unit==='m')parts.push(label+': '+formatNumber(meters*3.28084)+' ft');
+   else parts.push(label+': '+formatNumber(meters)+' m');
+  }
+ });
+ document.getElementById('dimension-conversion').textContent=parts.length?('Equivalent: '+parts.join(' • ')):'Cross-section ও height-এর মান এখানে দেখানো হবে।';
 }
 function loadDimensions(number){
  const data=columnDimensions[number];const unit=document.getElementById('dimension-unit');
