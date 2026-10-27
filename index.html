@@ -157,6 +157,25 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
  <div id="concrete-results" aria-live="polite"></div>
  <p class="muted" style="margin-top:12px">Brick chips estimate: 1 cft = 9টি ইট (আপনার দেওয়া conversion)। Cement bag volume 1.25 cft ধরা হয়েছে। এটি preliminary estimate; structural work-এর জন্য approved mix design ও project specification অনুসরণ করুন।</p>
 </div>
+
+<div class="dimension-card" style="margin-top:16px">
+ <h3 class="section-title" style="margin-top:0">Steel Reinforcement</h3>
+ <p class="muted">Column-এর main bars ও ties/stirrups-এর আনুমানিক steel weight হিসাব করুন। এটি quantity estimate—reinforcement design নয়।</p>
+ <h3 class="section-title">Longitudinal / Main Bars</h3>
+ <div class="form-grid">
+  <div class="field"><label for="main-bar-count">Main bar সংখ্যা</label><input id="main-bar-count" type="number" min="4" step="1" value="8" inputmode="numeric"></div>
+  <div class="field"><label for="main-bar-dia">Main bar diameter (mm)</label><select id="main-bar-dia"><option>10</option><option>12</option><option selected>16</option><option>20</option><option>25</option><option>32</option></select></div>
+ </div>
+ <h3 class="section-title">Ties / Stirrups</h3>
+ <div class="form-grid">
+  <div class="field"><label for="tie-bar-dia">Tie diameter (mm)</label><select id="tie-bar-dia"><option selected>8</option><option>10</option><option>12</option></select></div>
+  <div class="field"><label for="tie-spacing">Tie spacing (mm)</label><input id="tie-spacing" type="number" min="25" step="5" value="150" inputmode="numeric"></div>
+  <div class="field"><label for="column-cover">Clear cover (mm)</label><input id="column-cover" type="number" min="15" step="5" value="40" inputmode="numeric"></div>
+ </div>
+ <div class="detail-actions"><button class="primary" id="calculate-steel" type="button">Calculate Steel</button><button class="secondary" id="reset-steel" type="button">Reset Steel</button></div>
+ <div id="steel-results" aria-live="polite"></div>
+ <p class="muted" style="margin-top:12px">Weight formula: d²/162 kg/m (approx.). Main-bar length is estimated as column height only; lap, anchorage, hooks, wastage, tie shape and seismic detailing are not fully included. Final bar detailing must comply with BNBC 2020 and approved structural drawings.</p>
+</div>
 <div class="grid">
  <div class="tile" style="cursor:default"><div class="emoji" aria-hidden="true">🧮</div><h3>Design Calculation</h3><p>Dimension input প্রস্তুত। Code-based design calculation পরবর্তী ধাপে যোগ করা যাবে।</p></div>
 </div>
@@ -234,6 +253,29 @@ document.getElementById('save-dimensions').addEventListener('click',()=>{
 document.getElementById('clear-dimensions').addEventListener('click',()=>{document.getElementById('column-width').value='';document.getElementById('column-depth').value='';document.getElementById('column-height').value='';delete columnDimensions[activeColumn];localStorage.setItem('civilToolColumnDimensions',JSON.stringify(columnDimensions));document.getElementById('dimension-status').textContent='Dimension clear করা হয়েছে।';updateConversion()});
 renderColumns();
 
+
+function dimensionMeters(value,unit){return value*(unit==='m'?1:(unit==='ft'?0.3048:0.0254))}
+function calculateSteel(){
+ const unit=document.getElementById('dimension-unit').value;
+ const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
+ const n=parseInt(document.getElementById('main-bar-count').value,10),mainDia=parseFloat(document.getElementById('main-bar-dia').value),tieDia=parseFloat(document.getElementById('tie-bar-dia').value),spacing=parseFloat(document.getElementById('tie-spacing').value),cover=parseFloat(document.getElementById('column-cover').value);
+ const out=document.getElementById('steel-results');
+ if(![w,d,h].every(v=>Number.isFinite(v)&&v>0)){out.innerHTML='<div class="result">আগে Column-এর Width, Depth ও Height সঠিকভাবে দিন।</div>';return}
+ if(!Number.isInteger(n)||n<4||!Number.isFinite(spacing)||spacing<=0||!Number.isFinite(cover)||cover<0){out.innerHTML='<div class="result">Main bars অন্তত 4টি দিন; tie spacing ও cover সঠিকভাবে দিন।</div>';return}
+ const wm=dimensionMeters(w,unit),dm=dimensionMeters(d,unit),hm=dimensionMeters(h,unit),cm=cover/1000;
+ if(wm<=2*cm||dm<=2*cm){out.innerHTML='<div class="result">Cover অনুযায়ী column cross-section খুব ছোট। Dimension ও cover যাচাই করুন।</div>';return}
+ const mainLength=n*hm;
+ const tieCount=Math.ceil(hm/(spacing/1000))+1;
+ const tieLengthEach=2*((wm-2*cm)+(dm-2*cm))+24*(tieDia/1000);
+ const totalTieLength=tieCount*tieLengthEach;
+ const mainWeight=mainLength*mainDia*mainDia/162;
+ const tieWeight=totalTieLength*tieDia*tieDia/162;
+ const total=mainWeight+tieWeight;
+ const fmt=x=>x.toLocaleString('en-US',{maximumFractionDigits:2});
+ out.innerHTML='<div class="result">Estimated reinforcement steel: '+fmt(total)+' kg</div><div class="grid"><div class="dimension-card"><strong>Main bars</strong><p>'+n+' bars × '+fmt(hm)+' m = '+fmt(mainLength)+' m</p><p>Weight: '+fmt(mainWeight)+' kg</p></div><div class="dimension-card"><strong>Ties / stirrups</strong><p>Estimated count: '+tieCount+' pcs</p><p>Approx. total length: '+fmt(totalTieLength)+' m</p><p>Weight: '+fmt(tieWeight)+' kg</p></div><div class="dimension-card"><strong>Approx. total</strong><p>'+fmt(total)+' kg ('+fmt(total/1000)+' tonne)</p></div></div><p class="muted" style="margin-top:12px">Estimate excludes laps, starter bars, anchorage into footing/beam, actual hook configuration, extra confinement ties and wastage. Tie count and length are simplified estimates; verify with the structural detailing drawings.</p>';
+}
+document.getElementById('calculate-steel').addEventListener('click',calculateSteel);
+document.getElementById('reset-steel').addEventListener('click',()=>{document.getElementById('main-bar-count').value=8;document.getElementById('main-bar-dia').value='16';document.getElementById('tie-bar-dia').value='8';document.getElementById('tie-spacing').value=150;document.getElementById('column-cover').value=40;document.getElementById('steel-results').replaceChildren()});
 function columnVolumeCft(){
  const unit=document.getElementById('dimension-unit').value;
  const w=parseFloat(document.getElementById('column-width').value),d=parseFloat(document.getElementById('column-depth').value),h=parseFloat(document.getElementById('column-height').value);
