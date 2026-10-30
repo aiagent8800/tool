@@ -92,6 +92,9 @@ input:focus,select:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 4px 
 .summary-material strong{display:block;font-size:20px;letter-spacing:-.03em;color:#123b70;margin:6px 0 3px;overflow-wrap:anywhere}
 .summary-material small{font-size:11px;color:#64748b;line-height:1.5}
 .summary-footnote{margin-top:14px;padding:11px 12px;border-radius:11px;background:#eef5ff;color:#315887;font-size:12px;line-height:1.65}.table-wrap{width:100%;overflow-x:auto;margin-top:10px;border:1px solid #e1e9f4;border-radius:13px;background:#fff}.material-table{width:100%;border-collapse:collapse;min-width:280px;font-size:13px}.material-table th,.material-table td{padding:12px 10px;text-align:left;border-bottom:1px solid #e8eef6;white-space:nowrap}.material-table th{background:#edf4ff;color:#23466f;font-weight:800}.material-table tr:last-child td{border-bottom:0}
+/* Hide explanatory estimate note while keeping all calculation logic intact */
+.ui-hidden-note{display:none!important}
+
 /* Keep calculator outputs fully readable on phones without sideways scrolling */
 .table-wrap{overflow:visible!important;width:100%;max-width:100%;margin-top:10px;border:1px solid #e1e9f4;border-radius:12px;background:#fff}
 .material-table{width:100%;min-width:0!important;table-layout:fixed;font-size:12px}
@@ -183,7 +186,7 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
  </div>
  <div class="detail-actions"><button class="primary" id="calculate-concrete" type="button">Calculate Materials</button><button class="secondary" id="reset-concrete" type="button">Reset Mix</button></div>
  <div id="concrete-results" aria-live="polite"></div>
- <p class="muted" style="margin-top:12px">Brick chips estimate: 1 cft = 9টি ইট (আপনার দেওয়া conversion)। Cement bag volume 1.25 cft ধরা হয়েছে। এটি preliminary estimate; structural work-এর জন্য approved mix design ও project specification অনুসরণ করুন।</p>
+ <p class="muted ui-hidden-note" style="margin-top:12px">Brick chips estimate: 1 cft = 9টি ইট (আপনার দেওয়া conversion)। Cement bag volume 1.25 cft ধরা হয়েছে। এটি preliminary estimate; structural work-এর জন্য approved mix design ও project specification অনুসরণ করুন।</p>
 </div>
 
 <div class="dimension-card" style="margin-top:16px">
