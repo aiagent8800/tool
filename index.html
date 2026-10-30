@@ -93,7 +93,7 @@ input:focus,select:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 4px 
 .summary-material small{font-size:11px;color:#64748b;line-height:1.5}
 .summary-footnote{margin-top:14px;padding:11px 12px;border-radius:11px;background:#eef5ff;color:#315887;font-size:12px;line-height:1.65}.table-wrap{width:100%;overflow-x:auto;margin-top:10px;border:1px solid #e1e9f4;border-radius:13px;background:#fff}.material-table{width:100%;border-collapse:collapse;min-width:280px;font-size:13px}.material-table th,.material-table td{padding:12px 10px;text-align:left;border-bottom:1px solid #e8eef6;white-space:nowrap}.material-table th{background:#edf4ff;color:#23466f;font-weight:800}.material-table tr:last-child td{border-bottom:0}
 /* Hide explanatory estimate note while keeping all calculation logic intact */
-.ui-hidden-note{display:none!important}
+.ui-hidden-note,.summary-footnote{display:none!important}
 
 /* Keep calculator outputs fully readable on phones without sideways scrolling */
 .table-wrap{overflow:visible!important;width:100%;max-width:100%;margin-top:10px;border:1px solid #e1e9f4;border-radius:12px;background:#fff}
@@ -155,13 +155,13 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 <div class="actions"><button class="primary" id="add-column" type="button">＋ Add Column</button><button class="primary" id="calculate-building-total" type="button">📊 Calculate Total Summary</button></div>
 <div class="dimension-card" id="project-summary-inline" hidden style="margin-top:16px"><h3 class="section-title" style="margin-top:0">Building Total Summary</h3><div id="project-summary-inline-content"></div><button class="secondary" id="copy-inline-project-summary" type="button">Copy Total Summary</button><p class="muted" id="inline-summary-status" role="status"></p></div>
 </section>
-<section class="panel" id="project-summary-view" hidden><button class="secondary" id="back-project-summary" type="button">‹ Back to Column Workspace</button><h2>Building Material Summary</h2><p class="muted">পুরো building-এর সব column-এর concrete ও steel quantity এখানে দেখাবে।</p><div id="project-summary-content"></div><button class="secondary" id="copy-project-summary" type="button">Copy Building Summary</button><p class="muted" id="project-summary-status"></p></section>
+<section class="panel" id="project-summary-view" hidden><button class="secondary" id="back-project-summary" type="button">‹ Back to Column Workspace</button><h2>Building Material Summary</h2><p class="muted ui-hidden-note">পুরো building-এর সব column-এর concrete ও steel quantity এখানে দেখাবে।</p><div id="project-summary-content"></div><button class="secondary" id="copy-project-summary" type="button">Copy Building Summary</button><p class="muted" id="project-summary-status"></p></section>
 <section class="panel" id="detail-view" hidden>
 <button class="back" id="back-columns" type="button"><span class="back-icon" aria-hidden="true">‹</span><span class="back-label">Back to Column</span></button>
 <h2 id="detail-title">Column 1</h2>
-<p class="muted">Width, Length ও Height-এর মান দিন। প্রতিটি dimension-এর একক আলাদাভাবে নির্বাচন করতে পারবেন।</p>
+<p class="muted ui-hidden-note">Width, Length ও Height-এর মান দিন। প্রতিটি dimension-এর একক আলাদাভাবে নির্বাচন করতে পারবেন।</p>
 <div class="dimension-card">
- <div class="field"><label for="column-quantity"><strong>Column Qty</strong> / একই মাপের কলামের সংখ্যা</label><input id="column-quantity" type="number" min="1" step="1" value="" inputmode="numeric" placeholder="এখানে সংখ্যা লিখুন (যেমন 5)"><p class="muted">Building Summary-তে এই সংখ্যাটি দিয়ে concrete ও steel-এর per-column হিসাব গুণ হবে।</p></div>
+ <div class="field"><label for="column-quantity"><strong>Column Qty</strong> / একই মাপের কলামের সংখ্যা</label><input id="column-quantity" type="number" min="1" step="1" value="" inputmode="numeric" placeholder="এখানে সংখ্যা লিখুন (যেমন 5)"><p class="muted ui-hidden-note">Building Summary-তে এই সংখ্যাটি দিয়ে concrete ও steel-এর per-column হিসাব গুণ হবে।</p></div>
  <h3 class="section-title">Cross-section</h3>
  <div class="form-grid">
   <div class="field"><label for="column-width">Width / প্রস্থ</label><select id="width-unit" class="unit-select" aria-label="Width unit"><option value="m">Meter (m)</option><option value="ft">Feet (ft)</option><option value="in">Inch (in)</option></select><input id="column-width" type="number" autocomplete="off" min="0" step="any" inputmode="decimal" placeholder="যেমন 0.30"></div>
@@ -175,10 +175,10 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 </div>
 <div class="dimension-card" style="margin-top:16px">
  <h3 class="section-title" style="margin-top:0">Concrete Volume</h3>
- <p class="muted">Width × Depth × Height থেকে কলামের concrete volume স্বয়ংক্রিয়ভাবে হিসাব হবে।</p>
+ <p class="muted ui-hidden-note">Width × Depth × Height থেকে কলামের concrete volume স্বয়ংক্রিয়ভাবে হিসাব হবে।</p>
  <div class="result" id="column-volume-result" aria-live="polite">Column volume: dimension দিন</div>
  <h3 class="section-title">Concrete Material</h3>
- <p class="muted">এই কলামের volume অনুযায়ী cement, sand ও aggregate-এর আনুমানিক পরিমাণ হিসাব করুন।</p>
+ <p class="muted ui-hidden-note">এই কলামের volume অনুযায়ী cement, sand ও aggregate-এর আনুমানিক পরিমাণ হিসাব করুন।</p>
  <div class="form-grid">
   <div class="field"><label for="concrete-grade">Grade / nominal mix</label><select id="concrete-grade"><option value="1,3,6">M10 — 1:3:6 (nominal)</option><option value="1,2,4">M15 — 1:2:4 (nominal)</option><option value="1,1.5,3" selected>M20 — 1:1.5:3 (nominal)</option><option value="design">M25 বা বেশি — approved design mix</option></select></div>
   <div class="field"><label for="aggregate-type">Coarse aggregate</label><select id="aggregate-type"><option value="stone">Stone Chips</option><option value="brick">Brick Chips</option></select></div>
@@ -191,9 +191,9 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 
 <div class="dimension-card" style="margin-top:16px">
  <h3 class="section-title" style="margin-top:0">Steel Reinforcement</h3>
- <p class="muted">Column-এর main bars ও ties/stirrups-এর আনুমানিক steel weight হিসাব করুন। এটি quantity estimate—reinforcement design নয়।</p>
+ <p class="muted ui-hidden-note">Column-এর main bars ও ties/stirrups-এর আনুমানিক steel weight হিসাব করুন। এটি quantity estimate—reinforcement design নয়।</p>
  <h3 class="section-title">Longitudinal / Main Bars</h3>
- <p class="muted">একাধিক diameter আলাদাভাবে যোগ করুন—যেমন 4টি × 20 mm এবং 2টি × 16 mm।</p>
+ <p class="muted ui-hidden-note">একাধিক diameter আলাদাভাবে যোগ করুন—যেমন 4টি × 20 mm এবং 2টি × 16 mm।</p>
  <div id="main-bar-groups"></div>
  <div class="detail-actions"><button class="secondary" id="add-main-bar-group" type="button">＋ Add bar size</button></div>
  <h3 class="section-title">Ties / Stirrups</h3>
@@ -209,7 +209,7 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 
 <div class="dimension-card summary-card" style="margin-top:18px" id="column-summary">
  <div class="summary-heading"><div><div class="summary-kicker">PROJECT SNAPSHOT</div><h3 class="section-title" style="margin:5px 0 4px;font-size:20px">Column Material Summary</h3></div><span class="summary-icon">▤</span></div>
- <p class="muted" id="summary-hint">Width, Depth ও Height—তিনটি মান দিলেই summary স্বয়ংক্রিয়ভাবে দেখাবে। প্রয়োজনে Calculate Materials চাপুন।</p>
+ <p class="muted ui-hidden-note" id="summary-hint">Width, Depth ও Height—তিনটি মান দিলেই summary স্বয়ংক্রিয়ভাবে দেখাবে। প্রয়োজনে Calculate Materials চাপুন।</p>
  <div id="summary-content"></div>
  <button class="secondary" id="copy-summary" type="button" style="margin-top:14px">Copy Summary</button>
  <p class="muted" id="summary-copy-status" role="status" style="margin-bottom:0"></p>
@@ -220,7 +220,7 @@ footer{max-width:720px;margin:0 auto;padding:0 20px 30px;font-size:12px;line-hei
 </div>
 <div class="dimension-card" style="margin-top:18px;background:linear-gradient(145deg,#eff6ff,#fff);border-color:#bfdbfe">
  <h3 class="section-title" style="margin-top:0">Building Summary</h3>
- <p class="muted">Concrete Materials ও Steel Reinforcement হিসাবের পরে এখানে চাপ দিয়ে পুরো building-এর মোট quantity দেখুন। একই ধরনের কলামের Quantity-ও যোগ হবে।</p>
+ <p class="muted ui-hidden-note">Concrete Materials ও Steel Reinforcement হিসাবের পরে এখানে চাপ দিয়ে পুরো building-এর মোট quantity দেখুন। একই ধরনের কলামের Quantity-ও যোগ হবে।</p>
  <button class="primary" id="open-project-summary" type="button">📊 Open Building Summary</button>
 </div>
 </section>
@@ -425,7 +425,7 @@ function renderProjectSummary(){
  const quantities=JSON.parse(localStorage.getItem('civilToolColumnQuantities')||'{}');
  const fmt=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2});
  const ids=columns.filter(n=>ms[n]||ss[n]),box=document.getElementById('project-summary-content');
- if(!ids.length){box.innerHTML='<div class="dimension-card"><strong>এখনো কোনো হিসাব save হয়নি</strong><p class="muted">প্রতিটি Column-এ গিয়ে Calculate Materials এবং Calculate Steel চাপুন। তারপর এখানে total দেখা যাবে।</p></div>';buildingSummaryText='';return}
+ if(!ids.length){box.innerHTML='<div class="dimension-card"><strong>এখনো কোনো হিসাব save হয়নি</strong><p class="muted ui-hidden-note">প্রতিটি Column-এ গিয়ে Calculate Materials এবং Calculate Steel চাপুন। তারপর এখানে total দেখা যাবে।</p></div>';buildingSummaryText='';return}
  let vol=0,bags=0,sand=0,agg=0,steel=0,main=0,ties=0,physicalCount=0,rows='';
  ids.forEach(n=>{
   const m=ms[n],s=ss[n],qty=Math.max(1,parseInt(quantities[n]||1,10)||1);physicalCount+=qty;
